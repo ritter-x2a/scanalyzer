@@ -3,10 +3,7 @@ package cfg
 sealed abstract class Value {
   def getName() : String = {
     this match {
-      case ADD(n, _, _) => n
-      case SLT(n, _, _) => n
-      case PHI(n, _) => n
-
+      case Named(n) => n
       case Const(x) => ""+x
       case Undef() => "Undef"
       case _ => "[Unsupported Value]"
@@ -22,6 +19,14 @@ sealed abstract class Instruction extends Value {
     this match {
       case ADD(n, a, b) =>
         ""+ n +" = ADD " + a.getName() + ", " + b.getName()
+      case SUB(n, a, b) =>
+        ""+ n +" = SUB " + a.getName() + ", " + b.getName()
+      case MUL(n, a, b) =>
+        ""+ n +" = MUL " + a.getName() + ", " + b.getName()
+      case DIV(n, a, b) =>
+        ""+ n +" = DIV " + a.getName() + ", " + b.getName()
+      case MOD(n, a, b) =>
+        ""+ n +" = DIV " + a.getName() + ", " + b.getName()
       case SLT(n, a, b) =>
         ""+ n +" = SLT " + a.getName() + ", " + b.getName()
       case B(c, a, b) =>
@@ -32,10 +37,8 @@ sealed abstract class Instruction extends Value {
           s = s + " [" + bb.Name + ", "+ v.getName() + "]"
         s
       }
-
       case RET(a) =>
         "RET " + a.getName()
-
       case _ => "[Unsupported Instruction]"
     }
   }
@@ -55,6 +58,10 @@ object Named extends Instruction {
 }
 
 case class ADD(N: String, OpA: Value, OpB: Value) extends Named(N)
+case class SUB(N: String, OpA: Value, OpB: Value) extends Named(N)
+case class MUL(N: String, OpA: Value, OpB: Value) extends Named(N)
+case class DIV(N: String, OpA: Value, OpB: Value) extends Named(N)
+case class MOD(N: String, OpA: Value, OpB: Value) extends Named(N)
 case class SLT(N: String, OpA: Value, OpB: Value) extends Named(N)
 case class PHI(N: String,  var Ops: List[(BasicBlock, Value)]) extends Named(N)
 
