@@ -1,10 +1,10 @@
-package Analysis
+package analysis
 
 import cfg._
 
 trait Analysis {
-  def run()
-  def printResult()
+  def run(): Unit
+  def printResult(): Unit
 }
 
 abstract class ValueAnalysis[T](fun: Function) extends Analysis {
@@ -20,25 +20,3 @@ abstract class ValueAnalysis[T](fun: Function) extends Analysis {
     })
   }
 }
-
-
-sealed abstract class SignVal
-case class EZ()
-case class GZ()
-case class LZ()
-case class LEZ()
-case class GEZ()
-case class NEZ()
-case class TOP()
-
-class SignAnalysis(fun: Function) extends ValueAnalysis[SignVal](fun) {
-  override def run() = {
-
-  }
-
-  override def printResult() = {
-
-  }
-}
-
-

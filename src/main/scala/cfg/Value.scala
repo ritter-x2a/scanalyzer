@@ -44,8 +44,17 @@ sealed abstract class Instruction extends Value {
 case class B(Cond: Value, TrueSucc: BasicBlock, FalseSucc: BasicBlock) extends Instruction
 case class RET(Op: Value) extends Instruction
 
-case class Named(Name: String) extends Instruction
-case class ADD(Name: String, OpA: Value, OpB: Value) extends Named(Name)
-case class SLT(Name: String, OpA: Value, OpB: Value) extends Named(Name)
-case class PHI(Name: String,  var Ops: List[(BasicBlock, Value)]) extends Named(Name)
+sealed abstract class Named(n: String) extends Instruction {
+  val Name: String = n
+}
+
+object Named extends Instruction {
+  def unapply(x: Named) = {
+    Some(x.Name)
+  }
+}
+
+case class ADD(N: String, OpA: Value, OpB: Value) extends Named(N)
+case class SLT(N: String, OpA: Value, OpB: Value) extends Named(N)
+case class PHI(N: String,  var Ops: List[(BasicBlock, Value)]) extends Named(N)
 
