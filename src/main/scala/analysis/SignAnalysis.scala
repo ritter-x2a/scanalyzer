@@ -11,6 +11,10 @@ case class GEZ()
 case class NEZ()
 case class TOP()
 
+/**
+ * A simple sign analysis that determines the possible signs of all occuring
+ * values in the function.
+ */
 class SignAnalysis(fun: Function) extends ValueAnalysis[SignVal](fun) {
   override def run() = {
 

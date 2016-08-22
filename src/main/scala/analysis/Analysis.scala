@@ -2,14 +2,25 @@ package analysis
 
 import cfg._
 
+/**
+ * General interface for analyses that work on function CFGs.
+ */
 trait Analysis {
   def run(): Unit
   def printResult(): Unit
 }
 
+/**
+ * Interface for analyses that yield a mapping from occuring symbols to some
+ * values as a result.
+ */
 abstract class ValueAnalysis[T](fun: Function) extends Analysis {
   var symtab: Map[String, Option[T]] = Map()
 
+  /**
+   * Initialize the internal symbol table with a mapping to none (=> "Bottom")
+   * for the names of all occuring symbols.
+   */
   def populateSymbolTable() = {
     fun.traverseInstructions((i: Instruction) => {
       i match {

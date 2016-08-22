@@ -1,5 +1,9 @@
 package cfg
 
+/**
+ * Super-class for everything 'value-like' in the CFG, e.g. Constants
+ * and Instructions.
+ */
 sealed abstract class Value {
   def getName() : String = {
     this match {
@@ -11,9 +15,13 @@ sealed abstract class Value {
   }
 }
 
+/** A (mathematical) integer Constant. */
 case class Const(v: Int) extends Value
+
+/** A dummy value that should not be used in any computation. */
 case class Undef() extends Value
 
+/** The possible atomic elements of computation. */
 sealed abstract class Instruction extends Value {
   def stringify() : String = {
     this match {
@@ -44,9 +52,12 @@ sealed abstract class Instruction extends Value {
   }
 }
 
-case class B(Cond: Value, TrueSucc: BasicBlock, FalseSucc: BasicBlock) extends Instruction
+case class B(C: Value, TSucc: BasicBlock, FSucc: BasicBlock) extends Instruction
 case class RET(Op: Value) extends Instruction
 
+/**
+ * Super-class for all named Instructions, i.e. those that yield an actual value.
+ */
 sealed abstract class Named(n: String) extends Instruction {
   val Name: String = n
 }
