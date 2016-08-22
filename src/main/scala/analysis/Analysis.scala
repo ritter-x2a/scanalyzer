@@ -1,6 +1,7 @@
 package analysis
 
 import cfg._
+import scala.collection.mutable.Map
 
 /**
  * General interface for analyses that work on function CFGs.
@@ -15,7 +16,7 @@ trait Analysis {
  * values as a result.
  */
 abstract class ValueAnalysis[T](fun: Function) extends Analysis {
-  var symtab: Map[String, Option[T]] = Map()
+  val symtab: Map[String, Option[T]] = Map()
 
   /**
    * Initialize the internal symbol table with a mapping to none (=> "Bottom")
