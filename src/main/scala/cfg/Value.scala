@@ -16,7 +16,7 @@ sealed abstract class Value {
 }
 
 /** A (mathematical) integer Constant. */
-case class Const(v: Int) extends Value
+case class Const(v: BigInt) extends Value
 
 /** A dummy value that should not be used in any computation. */
 case class Undef() extends Value

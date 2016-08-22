@@ -9,19 +9,6 @@ case class InterpretationException(msg:String) extends Exception
  */
 class Interpreter(fun: Function) extends ValueAnalysis[BigInt](fun) {
 
-  def getVal(v: Value): BigInt = {
-    v match {
-      case Named(n) => symtab(n) match {
-        case Some(x) => x;
-        case _ =>
-          throw new InterpretationException("Invalid symbol: `" + n +"`!")
-      }
-      case Const(x) => BigInt(x)
-      case _ =>
-        throw new InterpretationException("Invalid Value operand: `" + v +"`!")
-    }
-  }
-
   def eval(i: Named): Unit = {
     i match {
       case ADD(n, a, b) => symtab(n) = Some(getVal(a) + getVal(b))
@@ -35,6 +22,8 @@ class Interpreter(fun: Function) extends ValueAnalysis[BigInt](fun) {
                                           + i +"`!")
     }
   }
+
+  override def fromBigInt(x: BigInt): BigInt = x
 
   override def run(): Unit = {
     populateSymbolTable()

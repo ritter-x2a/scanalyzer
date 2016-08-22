@@ -3,6 +3,8 @@ package analysis
 import cfg._
 import scala.collection.mutable.Map
 
+case class AnalysisException(msg:String) extends Exception
+
 /**
  * General interface for analyses that work on function CFGs.
  */
@@ -31,6 +33,21 @@ abstract class ValueAnalysis[T](fun: Function) extends Analysis {
       }
     })
   }
+
+  def getVal(v: Value): T = {
+    v match {
+      case Named(n) => symtab(n) match {
+        case Some(x) => x;
+        case _ =>
+          throw new AnalysisException("Invalid symbol: `" + n +"`!")
+      }
+      case Const(x) => fromBigInt(x)
+      case _ =>
+        throw new AnalysisException("Invalid Value operand: `" + v +"`!")
+    }
+  }
+
+  def fromBigInt(x: BigInt): T
 
   override def printResult() = {
     for ((k, v) <- symtab)
