@@ -1,6 +1,7 @@
 package main
 
 import cfg._
+import analysis._
 
 
 object Main extends App {
@@ -31,5 +32,9 @@ object Main extends App {
   println(bb_B)
   println(bb_C)
 
+  val interpreter = new Interpreter(fun)
+
+  interpreter.run
+  interpreter.printResult
 }
 

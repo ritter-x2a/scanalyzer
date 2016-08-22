@@ -74,5 +74,14 @@ case class MUL(N: String, OpA: Value, OpB: Value) extends Named(N)
 case class DIV(N: String, OpA: Value, OpB: Value) extends Named(N)
 case class MOD(N: String, OpA: Value, OpB: Value) extends Named(N)
 case class SLT(N: String, OpA: Value, OpB: Value) extends Named(N)
-case class PHI(N: String,  var Ops: List[(BasicBlock, Value)]) extends Named(N)
+
+case class PHI(N: String,  var Ops: List[(BasicBlock, Value)]) extends Named(N) {
+  def getValForBB(bb: BasicBlock): Option[Value] = {
+    for ((b, v) <- this.Ops)
+      if (b == bb)
+        return Some(v)
+    return None
+  }
+}
+
 

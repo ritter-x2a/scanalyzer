@@ -31,4 +31,9 @@ abstract class ValueAnalysis[T](fun: Function) extends Analysis {
       }
     })
   }
+
+  override def printResult() = {
+    for ((k, v) <- symtab)
+      println(k+ " -> " + v)
+  }
 }
