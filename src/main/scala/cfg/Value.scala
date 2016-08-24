@@ -50,8 +50,8 @@ sealed trait Instruction {
         "B " + c.getRepr() + ", " + a.Name + ", " + b.Name
       case PHI(n, ops) => {
         var s = ""+ n +" = PHI "
-        for ((bb, v) <- ops)
-          s = s + " [" + bb.Name + ", "+ v.getRepr() + "]"
+        for ((v, bb) <- ops)
+          s = s + " [" + v.getRepr() + ", "+ bb.Name + "]"
         s
       }
       case RET(a) =>
@@ -84,9 +84,9 @@ case class DIV(N: String, OpA: Value, OpB: Value) extends Named(N)
 case class MOD(N: String, OpA: Value, OpB: Value) extends Named(N)
 case class SLT(N: String, OpA: Value, OpB: Value) extends Named(N)
 
-case class PHI(N: String,  var Ops: List[(BasicBlock, Value)]) extends Named(N) {
+case class PHI(N: String,  var Ops: List[(Value, BasicBlock)]) extends Named(N) {
   def getValForBB(bb: BasicBlock): Option[Value] = {
-    for ((b, v) <- this.Ops)
+    for ((v, b) <- this.Ops)
       if (b == bb)
         return Some(v)
     return None
