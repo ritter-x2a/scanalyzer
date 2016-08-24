@@ -21,7 +21,7 @@ sealed trait Value {
     this match {
       case Named(n) => n
       case Const(x) => ""+x
-      case Undef() => "Undef"
+      case Undef(n) => "Undef["+n+"]"
       case _ => "[Unsupported Value]"
     }
   }
@@ -31,7 +31,7 @@ sealed trait Value {
 case class Const(v: BigInt) extends Value
 
 /** A dummy value that should not be used in any computation. */
-case class Undef() extends Value
+case class Undef(n: String) extends Value
 
 /** The possible atomic elements of computation. */
 sealed trait Instruction {
