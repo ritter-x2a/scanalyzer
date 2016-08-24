@@ -32,7 +32,9 @@ object Main extends App {
   // println(bb_B)
   // println(bb_C)
 
-  Parser.parse("examplefiles/ex01.cfg")
+  val fun = Parser.parse("examplefiles/ex01.cfg")
+
+  fun.print
 
   // val interpreter = new Interpreter(fun)
   //

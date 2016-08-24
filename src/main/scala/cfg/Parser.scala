@@ -34,11 +34,27 @@ object Parser {
   val phi_pat =
     ("\\s*("+name_pat+")\\s*=\\s*PHI((?:\\s*\\[\\s*"+val_pat+"\\s*,\\s*"+name_pat+"\\s*\\]\\s*,?)+)\\s*").r
 
+  def makeDummyVal(s: String): Value = {
+    val pat = ("("+num_pat+")").r
+    s match {
+      case pat(s) => Const(s.toInt)
+      case s => Undef(s)
+    }
+  }
+
   def parse(filename: String): Function = {
     var state = NeedFunDef
     var res: Function = null
     var currBB: BasicBlock = null
     var currInstrs: List[Instruction] = Nil
+    val symtab = collection.mutable.Map[String, Instruction]()
+    val bbtab = collection.mutable.Map[String, BasicBlock]()
+    def closeBB() = {
+      currBB.Instrs = currInstrs.reverse
+      bbtab += (currBB.Name -> currBB)
+      currBB = null
+      currInstrs = Nil
+    }
 
     for (line <- Source.fromFile(filename).getLines()) {
       line match {
@@ -47,30 +63,42 @@ object Parser {
           state = NeedBB
         }
         case fun_decl_end_pat(x) if (state == MayBB) => {
-          // TODO close BB
           state = Done
         }
         case bb_start_pat(name) if (state == NeedBB || state == MayBB) => {
-          // TODO close BB
+          currBB = new BasicBlock(name)
           if (state == NeedBB)
             res.First == currBB
-          // TODO open BB
           state = MayPhi
         }
         case binop_pat(name,op,a,b) if (state == Instr || state == MayPhi) => {
-          println("binop:"+name+op+a+b)
+          val instr = op match {
+            case "ADD" => ADD(name, makeDummyVal(a), makeDummyVal(b))
+            case "SUB" => SUB(name, makeDummyVal(a), makeDummyVal(b))
+            case "MUL" => MUL(name, makeDummyVal(a), makeDummyVal(b))
+            case "DIV" => DIV(name, makeDummyVal(a), makeDummyVal(b))
+            case "MOD" => MOD(name, makeDummyVal(a), makeDummyVal(b))
+            case "SLT" => SLT(name, makeDummyVal(a), makeDummyVal(b))
+            case _ =>
+              throw new ParserException("Invalid binary operator: `"+op+"`!")
+          }
+          symtab += (name -> instr)
+          currInstrs = instr :: currInstrs
           state = Instr
         }
         case phi_pat(name, tail) if (state == MayPhi) => {
+          //TODO parse tail
           println("phi:"+name+tail)
           state = MayPhi
         }
-        case ret_pat(v) => {
-          println("ret:"+v)
+        case ret_pat(v) if (state == Instr || state == MayPhi) => {
+          currInstrs = RET(makeDummyVal(v)) :: currInstrs
+          closeBB()
           state = MayBB
         }
-        case b_pat(c,t,f) => {
-          println("b:"+c+t+f)
+        case b_pat(c,t,f) if (state == Instr || state == MayPhi) => {
+          currInstrs = B(makeDummyVal(c), new BasicBlock(t), new BasicBlock(f)) :: currInstrs
+          closeBB()
           state = MayBB
         }
         case empty_pat(x) => ;
@@ -79,6 +107,7 @@ object Parser {
     }
     if (state != Done)
       throw new ParserException("Unterminated input!")
+    // TODO fill in Dummy Values
     res
   }
 }

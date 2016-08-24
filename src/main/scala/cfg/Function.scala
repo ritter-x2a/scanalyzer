@@ -4,11 +4,12 @@ sealed class Function(name: String) {
   val Name: String = name
   var First: BasicBlock = null
 
-  def traverseInstructions(action: Instruction => Unit) = {
+
+  def traverseBB(action: BasicBlock => Unit): Unit = {
     val visited: collection.mutable.Set[BasicBlock] = collection.mutable.Set(First)
     var queue = First :: Nil
 
-    def traverseBB(): Unit = {
+    while (! queue.isEmpty) {
       val currBB = queue.head
       queue = queue.tail
 
@@ -17,8 +18,9 @@ sealed class Function(name: String) {
 
       visited += currBB
 
+      action(currBB)
+
       for (instr <- currBB.Instrs) {
-        action(instr)
         instr match {
           case B(cond, ifBB, elseBB) =>
             queue = ifBB :: elseBB :: queue
@@ -26,10 +28,19 @@ sealed class Function(name: String) {
         }
       }
     }
+  }
 
-    while (! queue.isEmpty) {
-      traverseBB()
-    }
+  def traverseInstructions(action: Instruction => Unit) = {
+    traverseBB((bb: BasicBlock) => {
+      for (instr <- bb.Instrs)
+        action(instr)
+    })
+  }
+
+  def print() = {
+    traverseBB((bb: BasicBlock) =>
+      println(bb.toString)
+    )
   }
 
   def verify() = {
