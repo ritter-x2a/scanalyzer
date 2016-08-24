@@ -32,6 +32,12 @@ sealed class Function(name: String) {
     }
   }
 
-  // def verify() = {...}
+  def verify() = {
+    // unique names
+    // definite assignment?
+    // phis only at the beginning of BBs
+    // phis have entries for exactly the predecessors?
+    // branch/return exactly at BB ends
+  }
 }
 

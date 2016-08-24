@@ -18,29 +18,25 @@ trait Analysis {
  * values as a result.
  */
 abstract class ValueAnalysis[T](fun: Function) extends Analysis {
-  val symtab: Map[String, Option[T]] = Map()
+  val symtab: Map[String, T] = Map()
 
   /**
    * Initialize the internal symbol table with a mapping to none (=> "Bottom")
    * for the names of all occuring symbols.
    */
-  def populateSymbolTable() = {
+  def populateSymbolTable(init_val: T) = {
     fun.traverseInstructions((i: Instruction) => {
       i match {
         case Named(n) if !(symtab contains n) =>
-            symtab += (n -> None)
-        case _ => None
+            symtab += (n -> init_val)
+        case _ => ()
       }
     })
   }
 
   def getVal(v: Value): T = {
     v match {
-      case Named(n) => symtab(n) match {
-        case Some(x) => x;
-        case _ =>
-          throw new AnalysisException("Invalid symbol: `" + n +"`!")
-      }
+      case Named(n) => symtab(n)
       case Const(x) => fromBigInt(x)
       case _ =>
         throw new AnalysisException("Invalid Value operand: `" + v +"`!")

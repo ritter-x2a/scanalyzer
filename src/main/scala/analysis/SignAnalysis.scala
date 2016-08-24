@@ -3,6 +3,7 @@ package analysis
 import cfg._
 
 sealed abstract class SignVal
+case class BOT() extends SignVal
 case class EZ() extends SignVal
 case class GZ() extends SignVal
 case class LZ() extends SignVal
@@ -17,6 +18,7 @@ case class TOP() extends SignVal
  */
 class SignAnalysis(fun: Function) extends ValueAnalysis[SignVal](fun) {
   override def run() = {
+    populateSymbolTable(new BOT())
 
   }
 
