@@ -1,5 +1,17 @@
 package cfg
 
+/*
+ * Inheritance structure:
+ *
+ *  Instruction      Value
+ *    /  |  \       /  |  \
+ *   /   |   \     /   |   \
+ * RET   B    Named  Const  Undef
+ *           /  |  \
+ *          /  ...  \
+ *        ADD       PHI
+ */
+
 /**
  * Super-class for everything 'value-like' in the CFG, e.g. Constants
  * and Instructions.
