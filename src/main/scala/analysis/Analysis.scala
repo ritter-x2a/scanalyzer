@@ -21,8 +21,8 @@ abstract class ValueAnalysis[T](fun: Function) extends Analysis {
   val symtab: Map[String, T] = Map()
 
   /**
-   * Initialize the internal symbol table with a mapping to none (=> "Bottom")
-   * for the names of all occuring symbols.
+   * Initialize the internal symbol table with a mapping to init_val for the
+   * names of all occuring symbols.
    */
   def populateSymbolTable(init_val: T) = {
     fun.traverseInstructions((i: Instruction) => {
