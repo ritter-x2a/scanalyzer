@@ -4,8 +4,9 @@ import cfg._
 import analysis._
 
 
-object Main extends App {
-  val fun = Parser.parse("examplefiles/ex01.cfg")
+object Main extends App
+{
+  val fun = Parser.parse("examplefiles/phi_eval.cfg")
 
   println(""+fun)
 

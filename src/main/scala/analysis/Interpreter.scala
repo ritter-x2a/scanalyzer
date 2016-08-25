@@ -7,33 +7,34 @@ case class InterpretationException(msg:String) extends Exception
 /**
  * An Interpreter for the SSA-CFG format that implicitly defines its semantics.
  */
-class Interpreter(fun: Function) extends ValueAnalysis[Option[BigInt]](fun) {
-  def acc[A](a: Option[A]): A = {
-    a match {
-      case Some(x) => x
-      case None =>
-        throw new InterpretationException("Use of undefined Value!")
-    }
-  }
+class Interpreter(fun: Function) extends ValueAnalysis[Option[BigInt]](fun)
+{
+  private def err(msg: String) = throw new InterpretationException(msg)
 
-  def eval(i: Named): Unit = {
+  private def acc[A](a: Option[A]): A =
+    a.getOrElse(err("Use of undefined Value!"))
+
+  private def eval(i: Named): Unit = {
     i match {
-      case BinOp(n, ADD(), a, b) => symtab(n) = Some(acc(getVal(a)) + acc(getVal(b)))
-      case BinOp(n, SUB(), a, b) => symtab(n) = Some(acc(getVal(a)) - acc(getVal(b)))
-      case BinOp(n, MUL(), a, b) => symtab(n) = Some(acc(getVal(a)) * acc(getVal(b)))
-      case BinOp(n, DIV(), a, b) => symtab(n) = Some(acc(getVal(a)) / acc(getVal(b)))
-      case BinOp(n, MOD(), a, b) => symtab(n) = Some(acc(getVal(a)) % acc(getVal(b)))
-      case BinOp(n, SLT(), a, b) =>
-        symtab(n) = Some(if (acc(getVal(a)) < acc(getVal(b))) 1 else 0)
-      case _ =>
-        throw new InterpretationException("Invalid named non-PHI Instruction: `"
-                                          + i +"`!")
+      case BinOp(n, op, a, b) => {
+        val aval = acc(getVal(a))
+        val bval = acc(getVal(b))
+        symtab(n) = Some(op match {
+          case ADD() => aval + bval
+          case SUB() => aval - bval
+          case MUL() => aval * bval
+          case DIV() => aval / bval
+          case MOD() => aval % bval
+          case SLT() => if (aval < bval) 1 else 0
+        })
+      }
+      case _ => err("Invalid named non-PHI Instruction: `" + i +"`!")
     }
   }
 
-  override def fromBigInt(x: BigInt): Option[BigInt] = Some(x)
+  override protected def fromBigInt(x: BigInt) = Some(x)
 
-  override def run(): Unit = {
+  override def run() = {
     populateSymbolTable(None)
     var prevBB: BasicBlock = null
     var currBB: BasicBlock = fun.First
@@ -42,23 +43,17 @@ class Interpreter(fun: Function) extends ValueAnalysis[Option[BigInt]](fun) {
       // PHIs are evaluated in parallel
       val (phis, rest) = currBB.splitPhis
 
-      var phi_res: List[Option[BigInt]] = Nil
-
-      for (p <- phis) {
+      // collect the appropriate values from all PHIs
+      var phi_res = phis map (p => {
         p.getValForBB(prevBB) match {
-          case Some(x) => phi_res = Some(acc(getVal(x))) :: phi_res
-          case None =>
-            throw new InterpretationException("Insufficient PHI Instruction: `"
-                                              + p +"`!")
+          case Some(x) => Some(acc(getVal(x)))
+          case None => err("Insufficient PHI Instruction: `" + p +"`!")
         }
-      }
+      })
 
-      phi_res = phi_res.reverse
-
-      for (p <- phis) {
-        symtab(p.Name) = phi_res.head
-        phi_res = phi_res.tail
-      }
+      // assign the new values
+      for ((p, r) <- phis zip phi_res)
+        symtab(p.Name) = r
 
       // the non-PHI instructions are evaluated sequentially
       for (i <- rest) {
@@ -73,8 +68,7 @@ class Interpreter(fun: Function) extends ValueAnalysis[Option[BigInt]](fun) {
             currBB = null
           }
           case x: Named => eval (x)
-          case _ => throw new InterpretationException(
-            "Invalid unnamed non-PHI Instruction: `" + i +"`!")
+          case _ => err( "Invalid unnamed non-PHI Instruction: `" + i +"`!")
         }
       }
     }

@@ -37,6 +37,16 @@ class InterpreterSpec extends FlatSpec with Matchers {
     interpreter.getResult should include ("""__RES__ -> Some(10)""")
   }
 
+  it should "handle multiple PHIs correctly" in {
+    val fun = Parser.parse("examplefiles/phi_eval.cfg")
+    val interpreter = new Interpreter(fun)
+    interpreter.run
+    val res = interpreter.getResult
+    res should include ("""__RES__ -> Some(10)""")
+    res should include ("""phi2 -> Some(42)""")
+  }
+
+
   // it should "throw NoSuchElementException if an empty stack is popped" in {
   //   val emptyStack = new Stack[Int]
   //   a [NoSuchElementException] should be thrownBy {

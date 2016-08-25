@@ -1,12 +1,13 @@
 package cfg
 
-sealed class Function(name: String) extends Iterable[BasicBlock] {
+sealed class Function(name: String) extends Iterable[BasicBlock]
+{
   val Name: String = name
   var First: BasicBlock = null
 
   override def iterator = new Iterator[BasicBlock] {
-    val visited: collection.mutable.Set[BasicBlock] = collection.mutable.Set()
-    var queue = First :: Nil
+    private val visited = collection.mutable.Set[BasicBlock]()
+    private var queue = First :: Nil
 
     def hasNext = ! queue.isEmpty
 
@@ -15,23 +16,28 @@ sealed class Function(name: String) extends Iterable[BasicBlock] {
       visited += res
       queue = queue.tail
 
-      for (instr <- res.Instrs) {
-        instr match {
-          case B(cond, ifBB, elseBB) =>
-            if (! (visited contains elseBB) && ! (queue contains elseBB))
-              queue = elseBB :: queue
-            if (! (visited contains ifBB) && ! (queue contains ifBB))
-              queue = ifBB :: queue
-          case _ => ;
-        }
+      res foreach {
+        case B(cond, ifBB, elseBB) =>
+          if (! (visited contains elseBB) && ! (queue contains elseBB))
+            queue = elseBB :: queue
+          if (! (visited contains ifBB) && ! (queue contains ifBB))
+            queue = ifBB :: queue
+        case _ =>
       }
-
       res
     }
   }
 
+  /**
+   * Traverses all BasicBlocks and applies the given action to each.
+   *
+   * The essential difference to foreach (via Iterable) is that here, the
+   * action is applied BEFORE the successors of the BasicBlock are recorded for
+   * the next steps. This is crucial when creating the CFG using dummy target
+   * BasicBlocks first and replacing them with this method.
+   */
   def traverseBB(action: BasicBlock => Unit): Unit = {
-    val visited: collection.mutable.Set[BasicBlock] = collection.mutable.Set()
+    val visited = collection.mutable.Set[BasicBlock]()
     var queue = First :: Nil
 
     def loop: Unit = {
@@ -42,15 +48,10 @@ sealed class Function(name: String) extends Iterable[BasicBlock] {
         return ()
 
       visited += currBB
-
       action(currBB)
-
-      for (instr <- currBB.Instrs) {
-        instr match {
-          case B(cond, ifBB, elseBB) =>
-            queue = ifBB :: elseBB :: queue
-          case _ => ;
-        }
+      currBB foreach {
+        case B(cond, ifBB, elseBB) => queue = ifBB :: elseBB :: queue
+        case _ =>
       }
     }
 
@@ -58,18 +59,18 @@ sealed class Function(name: String) extends Iterable[BasicBlock] {
       loop
   }
 
-  def traverseInstructions(action: Instruction => Unit) = {
-    traverseBB((bb: BasicBlock) => {
-      for (instr <- bb.Instrs)
-        action(instr)
-    })
-  }
+  /**
+   * Traverses all Instructions and applies the given action to each.
+   *
+   * This uses the ´traverseBB´ method, consider its documentation for why this
+   * is necessary.
+   */
+  def traverseInstructions(action: Instruction => Unit) =
+    traverseBB(bb => bb foreach action)
 
   override def toString() = {
     var res = "fun "+name+" {\n"
-    map((bb: BasicBlock) =>
-      res += bb.toString + "\n"
-    )
+    this foreach (bb => res += "" + bb + "\n")
     res += "}\n"
     res
   }

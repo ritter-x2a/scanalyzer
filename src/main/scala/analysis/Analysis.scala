@@ -8,7 +8,8 @@ case class AnalysisException(msg:String) extends Exception
 /**
  * General interface for analyses that work on function CFGs.
  */
-trait Analysis {
+trait Analysis
+{
   def run(): Unit
   def getResult(): String
 }
@@ -17,34 +18,31 @@ trait Analysis {
  * Interface for analyses that yield a mapping from occuring symbols to some
  * values as a result.
  */
-abstract class ValueAnalysis[T](fun: Function) extends Analysis {
-  val symtab: Map[String, T] = Map()
+abstract class ValueAnalysis[T](fun: Function) extends Analysis
+{
+  protected val symtab: Map[String, T] = Map()
 
   /**
    * Initialize the internal symbol table with a mapping to init_val for the
    * names of all occuring symbols.
    */
-  def populateSymbolTable(init_val: T) = {
-    fun.traverseInstructions((i: Instruction) => {
-      i match {
-        case Named(n) if !(symtab contains n) =>
-            symtab += (n -> init_val)
-        case _ => ()
-      }
-    })
-  }
-
-  def getVal(v: Value): T = {
-    v match {
-      case Named(n) => symtab(n)
-      case Const(x) => fromBigInt(x)
-      case _ => {
-        throw new AnalysisException("Invalid Value operand: `" + v +"`!")
-      }
+  protected def populateSymbolTable(init_val: T) = {
+    fun.traverseInstructions {
+      case Named(n) if !(symtab contains n) => symtab += (n -> init_val)
+      case _ =>
     }
   }
 
-  def fromBigInt(x: BigInt): T
+  protected def getVal(v: Value): T = {
+    v match {
+      case Named(n) => symtab(n)
+      case Const(x) => fromBigInt(x)
+      case _ =>
+        throw new AnalysisException("Invalid Value operand: `" + v +"`!")
+    }
+  }
+
+  protected def fromBigInt(x: BigInt): T
 
   override def getResult(): String = {
     var res = ""
