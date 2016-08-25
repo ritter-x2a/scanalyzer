@@ -4,15 +4,47 @@ import cfg._
 import analysis._
 
 
+object AnalysisOptions extends Enumeration
+{
+  type AnalysisOptions = Value
+  val NONE, INTERPRET = Value
+}
+
+import AnalysisOptions._
+
 object Main extends App
 {
-  val fun = Parser.parse("examplefiles/phi_eval.cfg")
+  var filename: String = null
+  var do_printing = false
+  var analysis_opt = NONE
 
-  println(""+fun)
+  args foreach {
+    case "-interpret" => analysis_opt = INTERPRET
+    case "-print" => do_printing = true
+    case s => filename = s
+  }
 
-  val interpreter = new Interpreter(fun)
+  if (filename == null) {
+    System.err.println("Input file required!")
+    System.exit(1)
+  }
 
-  interpreter.run
-  println(interpreter.getResult)
+  val fun = Parser.parse(filename)
+
+  if (do_printing)
+    println(fun.toString)
+
+  var analysis: Analysis = null
+
+  analysis_opt match {
+    case INTERPRET => analysis = new Interpreter(fun)
+    case _ =>
+  }
+
+  if (analysis == null)
+    System.exit(0)
+
+  analysis.run
+  println(analysis.getResult)
 }
 
