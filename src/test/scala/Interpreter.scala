@@ -17,7 +17,7 @@ class InterpreterSpec extends FlatSpec with Matchers {
     val bb_B = new BasicBlock("BB_B")
     val bb_C = new BasicBlock("BB_C")
 
-    fun.First = bb_start
+    fun.first = bb_start
 
     bb_start.Instrs = B(Const(1), bb_A, bb_A) :: Nil
 

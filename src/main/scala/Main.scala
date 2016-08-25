@@ -4,16 +4,14 @@ import cfg._
 import analysis._
 
 
-object AnalysisOptions extends Enumeration
-{
+object AnalysisOptions extends Enumeration {
   type AnalysisOptions = Value
   val NONE, INTERPRET = Value
 }
 
 import AnalysisOptions._
 
-object Main extends App
-{
+object Main extends App {
   var filename: String = null
   var do_printing = false
   var analysis_opt = NONE

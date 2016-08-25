@@ -7,8 +7,7 @@ package cfg
  * There should be exactly one branch/return Instruction in a BasicBlock,
  * namely the last Instruction.
  */
-sealed class BasicBlock(name: String) extends Iterable[Instruction]
-{
+sealed class BasicBlock(name: String) extends Iterable[Instruction] {
   val Name: String = name
   var Instrs: List[Instruction] = Nil
 

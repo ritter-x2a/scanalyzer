@@ -7,8 +7,7 @@ case class InterpretationException(msg:String) extends Exception
 /**
  * An Interpreter for the SSA-CFG format that implicitly defines its semantics.
  */
-class Interpreter(fun: Function) extends ValueAnalysis[Option[BigInt]](fun)
-{
+class Interpreter(fun: Function) extends ValueAnalysis[Option[BigInt]](fun) {
   private def err(msg: String) = throw new InterpretationException(msg)
 
   private def acc[A](a: Option[A]): A =
@@ -37,7 +36,7 @@ class Interpreter(fun: Function) extends ValueAnalysis[Option[BigInt]](fun)
   override def run() = {
     populateSymbolTable(None)
     var prevBB: BasicBlock = null
-    var currBB: BasicBlock = fun.First
+    var currBB: BasicBlock = fun.first
 
     while (currBB != null) {
       // PHIs are evaluated in parallel

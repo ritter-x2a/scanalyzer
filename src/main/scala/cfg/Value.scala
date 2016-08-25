@@ -16,8 +16,7 @@ package cfg
  * Super-class for everything 'value-like' in the CFG, e.g. Constants
  * and Instructions.
  */
-sealed trait Value
-{
+sealed trait Value {
   def getRepr() : String = {
     this match {
       case Named(n) => n
@@ -35,8 +34,7 @@ case class Const(v: BigInt) extends Value
 case class Undef(n: String) extends Value
 
 /** The possible atomic elements of computation. */
-sealed trait Instruction
-{
+sealed trait Instruction {
   override def toString() : String = {
     this match {
       case BinOp(n, op, a, b) => {
@@ -72,25 +70,23 @@ sealed trait Instruction
 }
 
 case class B(var C: Value, var TSucc: BasicBlock, var FSucc: BasicBlock)
-    extends Instruction
+  extends Instruction
 case class RET(var Op: Value) extends Instruction
 
 /**
  * Super-class for all named Instructions, i.e. those yielding an actual value.
  */
-sealed abstract class Named(n: String) extends Instruction with Value
-{
+sealed abstract class Named(n: String) extends Instruction with Value {
   val Name: String = n
 }
 
-object Named extends Instruction with Value
-{
+object Named extends Instruction with Value {
   def unapply(x: Named) =
     Some(x.Name)
 }
 
 case class BinOp(N: String, Op: Operator, var OpA: Value, var OpB: Value)
-    extends Named(N)
+  extends Named(N)
 
 sealed abstract class Operator
 case class ADD() extends Operator
@@ -100,8 +96,7 @@ case class DIV() extends Operator
 case class MOD() extends Operator
 case class SLT() extends Operator
 
-case class PHI(N: String,  var Ops: List[(Value, BasicBlock)]) extends Named(N)
-{
+case class PHI(N: String,  var Ops: List[(Value, BasicBlock)]) extends Named(N) {
   def getValForBB(bb: BasicBlock): Option[Value] =
     (Ops find (_._2 == bb)) map (_._1)
 }

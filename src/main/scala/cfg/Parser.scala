@@ -7,8 +7,7 @@ case class ParserException(msg:String) extends Exception
 /**
  * States of the "control automaton" (in some way...) of the parser.
  */
-object ParseState extends Enumeration
-{
+object ParseState extends Enumeration {
   type ParseState = Value
   val NeedFunDef, // initial, expecting the start of a fundef
       NeedBB,     // after the start of a fundef, expects BB
@@ -21,8 +20,7 @@ object ParseState extends Enumeration
 
 import ParseState._
 
-object ParseRegEx
-{
+object ParseRegEx {
   /** Pattern for valid identifiers. */
   val name_pat = "(?:[a-zA-Z][_a-zA-Z0-9]*)"
 
@@ -79,8 +77,7 @@ import ParseRegEx._
  * Makes use of obscure regular expressions. This is clearly bad for performance
  * but acceptable as performance is not in the primary focus of the project.
  */
-object Parser
-{
+object Parser {
   /**
    * Creates either an integer constant value if the given string is a number or
    * otherwise an Undef Value with the given string as name
@@ -132,7 +129,7 @@ object Parser
         case bb_start_pat(name) if (state == NeedBB || state == MayBB) => {
           currBB = new BasicBlock(name)
           if (state == NeedBB)
-            res.First = currBB
+            res.first = currBB
           state = MayPhi
         }
         case binop_pat(name,op,a,b) if (state == Instr || state == MayPhi) => {

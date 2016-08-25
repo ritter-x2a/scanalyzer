@@ -1,13 +1,16 @@
 package cfg
 
-sealed class Function(name: String) extends Iterable[BasicBlock]
-{
-  val Name: String = name
-  var First: BasicBlock = null
+sealed class Function(funName: String) extends Iterable[BasicBlock] {
+  private val _name: String = funName
+  def name = _name
+
+  private var _first: BasicBlock = null
+  def first = _first
+  def first_= (bb: BasicBlock) = _first = bb
 
   override def iterator = new Iterator[BasicBlock] {
     private val visited = collection.mutable.Set[BasicBlock]()
-    private var queue = First :: Nil
+    private var queue = first :: Nil
 
     def hasNext = ! queue.isEmpty
 
@@ -38,7 +41,7 @@ sealed class Function(name: String) extends Iterable[BasicBlock]
    */
   def traverseBB(action: BasicBlock => Unit): Unit = {
     val visited = collection.mutable.Set[BasicBlock]()
-    var queue = First :: Nil
+    var queue = first :: Nil
 
     def loop: Unit = {
       val currBB = queue.head
