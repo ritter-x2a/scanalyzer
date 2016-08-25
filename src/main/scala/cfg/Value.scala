@@ -7,9 +7,9 @@ package cfg
  *    /  |  \       /  |  \
  *   /   |   \     /   |   \
  * RET   B    Named  Const  Undef
- *           /  |  \
- *          /  ...  \
- *        ADD       PHI
+ *           /     \
+ *          /       \
+ *       BinOp      PHI
  */
 
 /**
