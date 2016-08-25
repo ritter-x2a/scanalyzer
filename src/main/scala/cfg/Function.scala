@@ -2,13 +2,15 @@ package cfg
 
 sealed class Function(funName: String) extends Iterable[BasicBlock] {
   private val _name: String = funName
-  def name = _name
-
   private var _first: BasicBlock = null
-  def first = _first
-  def first_= (bb: BasicBlock) = _first = bb
 
-  override def iterator = new Iterator[BasicBlock] {
+  def name: String = _name
+
+  def first: BasicBlock = _first
+
+  def first_=(bb: BasicBlock): Unit = _first = bb
+
+  override def iterator: Iterator[BasicBlock] = new Iterator[BasicBlock] {
     private val visited = collection.mutable.Set[BasicBlock]()
     private var queue = first :: Nil
 
@@ -21,10 +23,12 @@ sealed class Function(funName: String) extends Iterable[BasicBlock] {
 
       res foreach {
         case B(cond, ifBB, elseBB) =>
-          if (! (visited contains elseBB) && ! (queue contains elseBB))
+          if (! (visited contains elseBB) && ! (queue contains elseBB)) {
             queue = elseBB :: queue
-          if (! (visited contains ifBB) && ! (queue contains ifBB))
+          }
+          if (! (visited contains ifBB) && ! (queue contains ifBB)) {
             queue = ifBB :: queue
+          }
         case _ =>
       }
       res
@@ -47,8 +51,9 @@ sealed class Function(funName: String) extends Iterable[BasicBlock] {
       val currBB = queue.head
       queue = queue.tail
 
-      if (visited contains currBB)
+      if (visited contains currBB) {
         return ()
+      }
 
       visited += currBB
       action(currBB)
@@ -68,17 +73,17 @@ sealed class Function(funName: String) extends Iterable[BasicBlock] {
    * This uses the ´traverseBB´ method, consider its documentation for why this
    * is necessary.
    */
-  def traverseInstructions(action: Instruction => Unit) =
+  def traverseInstructions(action: Instruction => Unit): Unit =
     traverseBB(bb => bb foreach action)
 
-  override def toString() = {
-    var res = "fun "+name+" {\n"
+  override def toString(): String = {
+    var res = "fun " + name + " {\n"
     this foreach (bb => res += "" + bb + "\n")
     res += "}\n"
     res
   }
 
-  def verify() = {
+  def verify(): Unit = {
     // unique names
     // definite assignment?
     // phis only at the beginning of BBs

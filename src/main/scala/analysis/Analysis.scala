@@ -36,7 +36,7 @@ abstract class ValueAnalysis[A](fun: Function) extends Analysis {
       case Named(n) => symtab(n)
       case Const(x) => fromBigInt(x)
       case _ =>
-        throw new AnalysisException("Invalid Value operand: `" + v +"`!")
+        throw new AnalysisException("Invalid Value operand: `" + v + "`!")
     }
   }
 
@@ -45,7 +45,7 @@ abstract class ValueAnalysis[A](fun: Function) extends Analysis {
   override def getResult(): String = {
     var res = ""
     for ((k, v) <- symtab)
-      res += k+ " -> " + v + "\n"
+      res += k + " -> " + v + "\n"
     res
   }
 }

@@ -27,13 +27,13 @@ class Interpreter(fun: Function) extends ValueAnalysis[Option[BigInt]](fun) {
           case SLT() => if (aval < bval) 1 else 0
         })
       }
-      case _ => err("Invalid named non-PHI Instruction: `" + i +"`!")
+      case _ => err("Invalid named non-PHI Instruction: `" + i + "`!")
     }
   }
 
   override protected def fromBigInt(x: BigInt) = Some(x)
 
-  override def run() = {
+  override def run(): Unit = {
     populateSymbolTable(None)
     var prevBB: BasicBlock = null
     var currBB: BasicBlock = fun.first
@@ -67,7 +67,7 @@ class Interpreter(fun: Function) extends ValueAnalysis[Option[BigInt]](fun) {
             currBB = null
           }
           case x: Named => eval (x)
-          case _ => err( "Invalid unnamed non-PHI Instruction: `" + i +"`!")
+          case _ => err( "Invalid unnamed non-PHI Instruction: `" + i + "`!")
         }
       }
     }

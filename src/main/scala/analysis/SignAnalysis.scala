@@ -17,17 +17,19 @@ case class TOP() extends SignVal
  * values in the function.
  */
 class SignAnalysis(fun: Function) extends ValueAnalysis[SignVal](fun) {
-  override def run() = {
+  override def run(): Unit = {
     populateSymbolTable(new BOT())
 
   }
 
   override def fromBigInt(x: BigInt): SignVal = {
-    if (x > 0)
+    if (x > 0) {
       GZ()
-    else if (x < 0)
+    } else if (x < 0) {
       LZ()
-    else
+    }
+    else {
       EZ()
+    }
   }
 }

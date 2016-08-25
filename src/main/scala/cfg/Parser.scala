@@ -28,34 +28,34 @@ object ParseRegEx {
   val num_pat = "(?:\\-?(?:[0-9]|(?:[1-9][0-9]*)))"
 
   /** Pattern for valid values (i.e. identifiers or numbers). */
-  val val_pat = "(?:"+name_pat+"|"+num_pat+")"
+  val val_pat = "(?:" + name_pat + "|" + num_pat + ")"
 
   /** Pattern for the beginning of a function definition. */
-  val fun_def_start_pat = ("\\s*fun\\s+("+name_pat+")\\s*\\{\\s*").r
+  val fun_def_start_pat = ("\\s*fun\\s+(" + name_pat + ")\\s*\\{\\s*").r
 
   /** Pattern for the end of a function definition. */
   val fun_def_end_pat = "\\s*\\}(\\s*)".r
 
   /** Pattern for the beginning of a BasicBlock. */
-  val bb_start_pat = ("\\s*("+name_pat+")\\s*:\\s*").r
+  val bb_start_pat = ("\\s*(" + name_pat + ")\\s*:\\s*").r
 
   /** Pattern for an empty line. */
   val empty_pat = "(\\s*)".r
 
   /** Pattern for a binary operator instruction. */
   val binop_pat = (
-    "\\s*("+name_pat
-    +")\\s*=\\s*("+name_pat
-    +")\\s*("+val_pat
-    +")\\s*,\\s*("+val_pat
-    +")\\s*").r
+    "\\s*(" + name_pat
+    + ")\\s*=\\s*(" + name_pat
+    + ")\\s*(" + val_pat
+    + ")\\s*,\\s*(" + val_pat
+    + ")\\s*").r
 
   /** Pattern for a RET instruction. */
-  val ret_pat = ("\\s*RET\\s*("+val_pat+")\\s*").r
+  val ret_pat = ("\\s*RET\\s*(" + val_pat + ")\\s*").r
 
   /** Pattern for a B instruction. */
-  val b_pat = ("\\s*B\\s*("+val_pat+")\\s*,\\s*("+name_pat+")\\s*,\\s*("
-    +name_pat+")\\s*").r
+  val b_pat = ("\\s*B\\s*(" + val_pat + ")\\s*,\\s*(" + name_pat + ")\\s*,\\s*("
+     + name_pat + ")\\s*").r
 
   /**
    * Pattern for a PHI instruction. As Scala regex matching is not expressive
@@ -63,10 +63,10 @@ object ParseRegEx {
    *  required here.
    */
   val phi_pat =
-    ("\\s*("+name_pat
-      +")\\s*=\\s*PHI((?:\\s*\\[\\s*"+val_pat
-      +"\\s*,\\s*"+name_pat
-      +"\\s*\\]\\s*,?)+)\\s*").r
+    ("\\s*(" + name_pat
+      + ")\\s*=\\s*PHI((?:\\s*\\[\\s*" + val_pat
+      + "\\s*,\\s*" + name_pat
+      + "\\s*\\]\\s*,?)+)\\s*").r
 }
 
 import ParseRegEx._
@@ -83,7 +83,7 @@ object Parser {
    * otherwise an Undef Value with the given string as name
    */
   def makeDummyVal(s: String): Value = {
-    val pat = ("("+num_pat+")").r
+    val pat = ("(" + num_pat + ")").r
     s match {
       case pat(s) => Const(s.toInt)
       case s => Undef(s)
@@ -128,8 +128,9 @@ object Parser {
         }
         case bb_start_pat(name) if (state == NeedBB || state == MayBB) => {
           currBB = new BasicBlock(name)
-          if (state == NeedBB)
+          if (state == NeedBB) {
             res.first = currBB
+          }
           state = MayPhi
         }
         case binop_pat(name,op,a,b) if (state == Instr || state == MayPhi) => {
@@ -141,7 +142,7 @@ object Parser {
             case "MOD" => MOD()
             case "SLT" => SLT()
             case _ =>
-              throw new ParserException("Invalid binary operator: `"+op+"`!")
+              throw new ParserException("Invalid binary operator: `" + op + "`!")
           }
           val instr = BinOp(name, operator, makeDummyVal(a), makeDummyVal(b))
           symtab += (name -> instr)
@@ -149,7 +150,7 @@ object Parser {
           state = Instr
         }
         case phi_pat(name, tail) if (state == MayPhi) => {
-          val phiarg_pat = ("("+val_pat+")\\s*,\\s*("+name_pat+")").r
+          val phiarg_pat = ("(" + val_pat + ")\\s*,\\s*(" + name_pat + ")").r
           var ops: List[(Value, BasicBlock)] = Nil
           for (s <- tail.split("]").map(_.replaceAll("\\s*,?\\s*\\[", "")).map(_.trim)) {
             s match {
@@ -157,7 +158,7 @@ object Parser {
                 ops = (makeDummyVal(v), new BasicBlock(b)) :: ops
               }
               case _ => {
-                throw new ParserException("Invalid PHI argument: `"+s+"`!")
+                throw new ParserException("Invalid PHI argument: `" + s + "`!")
               }
             }
           }
@@ -178,11 +179,12 @@ object Parser {
           state = MayBB
         }
         case empty_pat(x) => ;
-        case x => throw new ParserException("Invalid input line: `"+x+"`!")
+        case x => throw new ParserException("Invalid input line: `" + x + "`!")
       }
     }
-    if (state != Done)
+    if (state != Done) {
       throw new ParserException("Unterminated input!")
+    }
 
     // Step 2: fill in non-dummy values
     res.traverseInstructions((i: Instruction) => {

@@ -29,8 +29,9 @@ object Main extends App {
 
   val fun = Parser.parse(filename)
 
-  if (do_printing)
+  if (do_printing) {
     println(fun.toString)
+  }
 
   var analysis: Analysis = null
 
@@ -39,8 +40,9 @@ object Main extends App {
     case _ =>
   }
 
-  if (analysis == null)
+  if (analysis == null) {
     System.exit(0)
+  }
 
   analysis.run
   println(analysis.getResult)

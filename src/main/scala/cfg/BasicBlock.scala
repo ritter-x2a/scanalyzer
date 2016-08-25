@@ -11,7 +11,7 @@ sealed class BasicBlock(name: String) extends Iterable[Instruction] {
   val Name: String = name
   var Instrs: List[Instruction] = Nil
 
-  override def iterator = Instrs.iterator
+  override def iterator: Iterator[Instruction] = Instrs.iterator
 
   /**
    * Returns two lists, one with the PHIs Instructions of the BasicBlock and

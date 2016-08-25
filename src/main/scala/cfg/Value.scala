@@ -20,8 +20,8 @@ sealed trait Value {
   def getRepr() : String = {
     this match {
       case Named(n) => n
-      case Const(x) => ""+x
-      case Undef(n) => "Undef["+n+"]"
+      case Const(x) => "" + x
+      case Undef(n) => "Undef[" + n + "]"
       case _ => "[Unsupported Value]"
     }
   }
@@ -47,15 +47,16 @@ sealed trait Instruction {
           case SLT() => "SLT"
           case _ => "[Unsupported BinOp]"
         }
-        ""+ n +" = " + opstr + " " + a.getRepr() + ", " + b.getRepr()
+        "" + n + " = " + opstr + " " + a.getRepr() + ", " + b.getRepr()
       }
       case PHI(n, ops) => {
-        var s = ""+ n +" = PHI"
+        var s = "" + n + " = PHI"
         var first = true
         for ((v, bb) <- ops) {
-          if (!first)
+          if (!first) {
             s += ","
-          s = s + " [" + v.getRepr() + ", "+ bb.Name + "]"
+          }
+          s = s + " [" + v.getRepr() + ", " + bb.Name + "]"
           first = false
         }
         s
@@ -81,7 +82,7 @@ sealed abstract class Named(n: String) extends Instruction with Value {
 }
 
 object Named extends Instruction with Value {
-  def unapply(x: Named) =
+  def unapply(x: Named): Option[String] =
     Some(x.Name)
 }
 
@@ -100,5 +101,3 @@ case class PHI(N: String,  var Ops: List[(Value, BasicBlock)]) extends Named(N) 
   def getValForBB(bb: BasicBlock): Option[Value] =
     (Ops find (_._2 == bb)) map (_._1)
 }
-
-
