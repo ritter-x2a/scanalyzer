@@ -18,12 +18,12 @@ class Interpreter(fun: Function) extends ValueAnalysis[Option[BigInt]](fun) {
 
   def eval(i: Named): Unit = {
     i match {
-      case ADD(n, a, b) => symtab(n) = Some(acc(getVal(a)) + acc(getVal(b)))
-      case SUB(n, a, b) => symtab(n) = Some(acc(getVal(a)) - acc(getVal(b)))
-      case MUL(n, a, b) => symtab(n) = Some(acc(getVal(a)) * acc(getVal(b)))
-      case DIV(n, a, b) => symtab(n) = Some(acc(getVal(a)) / acc(getVal(b)))
-      case MOD(n, a, b) => symtab(n) = Some(acc(getVal(a)) % acc(getVal(b)))
-      case SLT(n, a, b) =>
+      case BinOp(n, ADD(), a, b) => symtab(n) = Some(acc(getVal(a)) + acc(getVal(b)))
+      case BinOp(n, SUB(), a, b) => symtab(n) = Some(acc(getVal(a)) - acc(getVal(b)))
+      case BinOp(n, MUL(), a, b) => symtab(n) = Some(acc(getVal(a)) * acc(getVal(b)))
+      case BinOp(n, DIV(), a, b) => symtab(n) = Some(acc(getVal(a)) / acc(getVal(b)))
+      case BinOp(n, MOD(), a, b) => symtab(n) = Some(acc(getVal(a)) % acc(getVal(b)))
+      case BinOp(n, SLT(), a, b) =>
         symtab(n) = Some(if (acc(getVal(a)) < acc(getVal(b))) 1 else 0)
       case _ =>
         throw new InterpretationException("Invalid named non-PHI Instruction: `"

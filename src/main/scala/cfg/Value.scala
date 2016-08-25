@@ -36,24 +36,27 @@ case class Undef(n: String) extends Value
 /** The possible atomic elements of computation. */
 sealed trait Instruction {
   def stringify() : String = {
-    def stringifyBinOp(op: String, n: String, a: Value, b: Value): String = {
-        ""+ n +" = " + op + " " + a.getRepr() + ", " + b.getRepr()
-    }
     this match {
-      case ADD(n, a, b) => stringifyBinOp("ADD", n, a, b)
-      case SUB(n, a, b) => stringifyBinOp("SUB", n, a, b)
-      case MUL(n, a, b) => stringifyBinOp("MUL", n, a, b)
-      case DIV(n, a, b) => stringifyBinOp("DIV", n, a, b)
-      case MOD(n, a, b) => stringifyBinOp("MOD", n, a, b)
-      case SLT(n, a, b) => stringifyBinOp("SLT", n, a, b)
-      case B(c, a, b) =>
-        "B " + c.getRepr() + ", " + a.Name + ", " + b.Name
+      case BinOp(n, op, a, b) => {
+        val opstr = op match {
+          case ADD() => "ADD"
+          case SUB() => "SUB"
+          case MUL() => "MUL"
+          case DIV() => "DIV"
+          case MOD() => "MOD"
+          case SLT() => "SLT"
+          case _ => "[Unsupported BinOp]"
+        }
+        ""+ n +" = " + opstr + " " + a.getRepr() + ", " + b.getRepr()
+      }
       case PHI(n, ops) => {
         var s = ""+ n +" = PHI "
         for ((v, bb) <- ops)
           s = s + " [" + v.getRepr() + ", "+ bb.Name + "]"
         s
       }
+      case B(c, a, b) =>
+        "B " + c.getRepr() + ", " + a.Name + ", " + b.Name
       case RET(a) =>
         "RET " + a.getRepr()
       case _ => "[Unsupported Instruction]"
@@ -61,8 +64,8 @@ sealed trait Instruction {
   }
 }
 
-case class B(C: Value, TSucc: BasicBlock, FSucc: BasicBlock) extends Instruction
-case class RET(Op: Value) extends Instruction
+case class B(var C: Value, var TSucc: BasicBlock, var FSucc: BasicBlock) extends Instruction
+case class RET(var Op: Value) extends Instruction
 
 /**
  * Super-class for all named Instructions, i.e. those that yield an actual value.
@@ -77,12 +80,16 @@ object Named extends Instruction with Value {
   }
 }
 
-case class ADD(N: String, OpA: Value, OpB: Value) extends Named(N)
-case class SUB(N: String, OpA: Value, OpB: Value) extends Named(N)
-case class MUL(N: String, OpA: Value, OpB: Value) extends Named(N)
-case class DIV(N: String, OpA: Value, OpB: Value) extends Named(N)
-case class MOD(N: String, OpA: Value, OpB: Value) extends Named(N)
-case class SLT(N: String, OpA: Value, OpB: Value) extends Named(N)
+case class BinOp(N: String, Op: Operator, var OpA: Value, var OpB: Value)
+  extends Named(N)
+
+sealed abstract class Operator
+case class ADD() extends Operator
+case class SUB() extends Operator
+case class MUL() extends Operator
+case class DIV() extends Operator
+case class MOD() extends Operator
+case class SLT() extends Operator
 
 case class PHI(N: String,  var Ops: List[(Value, BasicBlock)]) extends Named(N) {
   def getValForBB(bb: BasicBlock): Option[Value] = {

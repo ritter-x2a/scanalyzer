@@ -6,7 +6,7 @@ sealed class Function(name: String) {
 
 
   def traverseBB(action: BasicBlock => Unit): Unit = {
-    val visited: collection.mutable.Set[BasicBlock] = collection.mutable.Set(First)
+    val visited: collection.mutable.Set[BasicBlock] = collection.mutable.Set()
     var queue = First :: Nil
 
     while (! queue.isEmpty) {
