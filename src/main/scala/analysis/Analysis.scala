@@ -10,7 +10,7 @@ case class AnalysisException(msg:String) extends Exception
  */
 trait Analysis {
   def run(): Unit
-  def printResult(): Unit
+  def getResult(): String
 }
 
 /**
@@ -46,8 +46,10 @@ abstract class ValueAnalysis[T](fun: Function) extends Analysis {
 
   def fromBigInt(x: BigInt): T
 
-  override def printResult() = {
+  override def getResult(): String = {
+    var res = ""
     for ((k, v) <- symtab)
-      println(k+ " -> " + v)
+      res += k+ " -> " + v + "\n"
+    res
   }
 }

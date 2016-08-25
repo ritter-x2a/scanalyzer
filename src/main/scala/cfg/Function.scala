@@ -65,12 +65,13 @@ sealed class Function(name: String) extends Iterable[BasicBlock] {
     })
   }
 
-  def print() = {
-    println("fun "+name+" {")
+  override def toString() = {
+    var res = "fun "+name+" {\n"
     map((bb: BasicBlock) =>
-      println(bb.toString)
+      res += bb.toString + "\n"
     )
-    println("}")
+    res += "}\n"
+    res
   }
 
   def verify() = {

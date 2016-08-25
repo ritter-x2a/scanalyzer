@@ -50,9 +50,14 @@ sealed trait Instruction {
         ""+ n +" = " + opstr + " " + a.getRepr() + ", " + b.getRepr()
       }
       case PHI(n, ops) => {
-        var s = ""+ n +" = PHI "
-        for ((v, bb) <- ops)
+        var s = ""+ n +" = PHI"
+        var first = true
+        for ((v, bb) <- ops) {
+          if (!first)
+            s += ","
           s = s + " [" + v.getRepr() + ", "+ bb.Name + "]"
+          first = false
+        }
         s
       }
       case B(c, a, b) =>
