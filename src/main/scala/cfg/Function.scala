@@ -1,15 +1,40 @@
 package cfg
 
-sealed class Function(name: String) {
+sealed class Function(name: String) extends Iterable[BasicBlock] {
   val Name: String = name
   var First: BasicBlock = null
 
+  override def iterator = new Iterator[BasicBlock] {
+    val visited: collection.mutable.Set[BasicBlock] = collection.mutable.Set()
+    var queue = First :: Nil
+
+    def hasNext = ! queue.isEmpty
+
+    def next = {
+      val res = queue.head
+      visited += res
+      queue = queue.tail
+
+      for (instr <- res.Instrs) {
+        instr match {
+          case B(cond, ifBB, elseBB) =>
+            if (! (visited contains elseBB) && ! (queue contains elseBB))
+              queue = elseBB :: queue
+            if (! (visited contains ifBB) && ! (queue contains ifBB))
+              queue = ifBB :: queue
+          case _ => ;
+        }
+      }
+
+      res
+    }
+  }
 
   def traverseBB(action: BasicBlock => Unit): Unit = {
     val visited: collection.mutable.Set[BasicBlock] = collection.mutable.Set()
     var queue = First :: Nil
 
-    while (! queue.isEmpty) {
+    def loop: Unit = {
       val currBB = queue.head
       queue = queue.tail
 
@@ -28,6 +53,9 @@ sealed class Function(name: String) {
         }
       }
     }
+
+    while (! queue.isEmpty)
+      loop
   }
 
   def traverseInstructions(action: Instruction => Unit) = {
@@ -38,9 +66,11 @@ sealed class Function(name: String) {
   }
 
   def print() = {
-    traverseBB((bb: BasicBlock) =>
+    println("fun "+name+" {")
+    map((bb: BasicBlock) =>
       println(bb.toString)
     )
+    println("}")
   }
 
   def verify() = {

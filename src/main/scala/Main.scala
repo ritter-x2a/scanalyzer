@@ -36,9 +36,9 @@ object Main extends App {
 
   fun.print
 
-  // val interpreter = new Interpreter(fun)
-  //
-  // interpreter.run
-  // interpreter.printResult
+  val interpreter = new Interpreter(fun)
+
+  interpreter.run
+  interpreter.printResult
 }
 

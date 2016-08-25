@@ -28,10 +28,10 @@ import ParseState._
  */
 object Parser {
   /** Pattern for valid identifiers. */
-  val name_pat = "[a-zA-Z][_a-zA-Z0-9]*"
+  val name_pat = "(?:[a-zA-Z][_a-zA-Z0-9]*)"
 
   /** Pattern for valid number constants. */
-  val num_pat = "\\-?(?:[0-9]|[1-9][0-9]*)"
+  val num_pat = "(?:\\-?(?:[0-9]|(?:[1-9][0-9]*)))"
 
   /** Pattern for valid values (i.e. identifiers or numbers). */
   val val_pat = "(?:"+name_pat+"|"+num_pat+")"
@@ -139,14 +139,27 @@ object Parser {
             case _ =>
               throw new ParserException("Invalid binary operator: `"+op+"`!")
           }
-          val instr = BinOp(name, operator, makeDummyVal(a), makeDummyVal(a))
+          val instr = BinOp(name, operator, makeDummyVal(a), makeDummyVal(b))
           symtab += (name -> instr)
           currInstrs = instr :: currInstrs
           state = Instr
         }
         case phi_pat(name, tail) if (state == MayPhi) => {
-          //TODO parse tail
-          println("phi:"+name+tail)
+          val phiarg_pat = ("("+val_pat+")\\s*,\\s*("+name_pat+")").r
+          var ops: List[(Value, BasicBlock)] = Nil
+          for (s <- tail.split("]").map(_.replaceAll("\\s*,?\\s*\\[", "")).map(_.trim)) {
+            s match {
+              case phiarg_pat(v, b) => {
+                ops = (makeDummyVal(v), new BasicBlock(b)) :: ops
+              }
+              case _ => {
+                throw new ParserException("Invalid PHI argument: `"+s+"`!")
+              }
+            }
+          }
+          val instr = PHI(name, ops.reverse)
+          symtab += (name -> instr)
+          currInstrs = instr :: currInstrs
           state = MayPhi
         }
         case ret_pat(v) if (state == Instr || state == MayPhi) => {
@@ -167,9 +180,6 @@ object Parser {
     if (state != Done)
       throw new ParserException("Unterminated input!")
 
-    if (res.First == null)
-      println("res.First is null!")
-
     // Step 2: fill in non-dummy values
     res.traverseInstructions((i: Instruction) => {
       i match {
@@ -184,7 +194,13 @@ object Parser {
           }
         }
         case s: PHI => {
-          //TODO
+          val newOps = s.Ops.map(pair =>
+            (pair._1 match {
+              case Undef(n) => symtab(n)
+              case _ => pair._1
+            }, bbtab(pair._2.Name))
+          )
+          s.Ops = newOps
         }
         case s: B => {
           s.C match {

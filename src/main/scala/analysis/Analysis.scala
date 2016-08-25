@@ -38,8 +38,9 @@ abstract class ValueAnalysis[T](fun: Function) extends Analysis {
     v match {
       case Named(n) => symtab(n)
       case Const(x) => fromBigInt(x)
-      case _ =>
+      case _ => {
         throw new AnalysisException("Invalid Value operand: `" + v +"`!")
+      }
     }
   }
 
