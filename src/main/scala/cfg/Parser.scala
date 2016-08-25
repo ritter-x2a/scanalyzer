@@ -155,7 +155,8 @@ object Parser {
           state = MayBB
         }
         case b_pat(c,t,f) if (state == Instr || state == MayPhi) => {
-          currInstrs = B(makeDummyVal(c), new BasicBlock(t), new BasicBlock(f)) :: currInstrs
+          val instr = B(makeDummyVal(c), new BasicBlock(t), new BasicBlock(f))
+          currInstrs = instr :: currInstrs
           closeBB()
           state = MayBB
         }
