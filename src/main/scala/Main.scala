@@ -6,7 +6,7 @@ import analysis._
 
 object AnalysisOptions extends Enumeration {
   type AnalysisOptions = Value
-  val NONE, INTERPRET = Value
+  val NONE, INTERPRET, SIGN = Value
 }
 
 import AnalysisOptions._
@@ -18,6 +18,7 @@ object Main extends App {
 
   args foreach {
     case "-interpret" => analysis_opt = INTERPRET
+    case "-sign" => analysis_opt = SIGN
     case "-print" => do_printing = true
     case s => filename = s
   }
@@ -37,6 +38,7 @@ object Main extends App {
 
   analysis_opt match {
     case INTERPRET => analysis = new Interpreter(fun)
+    case SIGN => analysis = new SignAnalysis(fun)
     case _ =>
   }
 

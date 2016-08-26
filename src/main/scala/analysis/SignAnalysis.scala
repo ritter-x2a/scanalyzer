@@ -181,7 +181,27 @@ case class TOP() extends SignVal
  * values in the function.
  */
 class SignAnalysis(fun: Function) extends ValueAnalysis[SignVal](fun) {
+  private def err(msg: String) = throw new AnalysisException(msg)
 
+  private def eval(i: Named): Unit = {
+    i match {
+      case BinOp(n, op, a, b) => {
+        val aval = getVal(a)
+        val bval = getVal(b)
+        symtab(n) = op match {
+          case ADD() => aval add bval
+          case SUB() => aval sub bval
+          case MUL() => aval mul bval
+          case DIV() => aval div bval
+          case SLT() => aval slt bval
+        }
+      }
+      case PHI(n, l) => {
+        symtab(n) = l.foldLeft(BOT(): SignVal) ((a, i) => a join getVal(i._1))
+      }
+      case _ => err("Invalid named Instruction: `" + i + "`!")
+    }
+  }
 
   override def run(): Unit = {
     populateSymbolTable(new BOT())
@@ -221,8 +241,12 @@ class SignAnalysis(fun: Function) extends ValueAnalysis[SignVal](fun) {
 
     while (! queue.isEmpty) {
       val current = queue.dequeue
-    //   compute new val for current
-    //   if it changed: add dependencies to queue
+      val before = symtab(current.Name)
+      eval(current)
+      val after = symtab(current.Name)
+      if (after != before) {
+        queue ++= (depMap(current) filterNot (queue contains _))
+      }
     }
   }
 
