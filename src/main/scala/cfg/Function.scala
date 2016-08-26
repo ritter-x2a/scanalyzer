@@ -1,5 +1,7 @@
 package cfg
 
+import scala.collection.mutable.{Set, Queue}
+
 sealed class Function(funName: String) extends Iterable[BasicBlock] {
   private val _name: String = funName
   private var _first: BasicBlock = null
@@ -11,24 +13,23 @@ sealed class Function(funName: String) extends Iterable[BasicBlock] {
   def first_=(bb: BasicBlock): Unit = _first = bb
 
   override def iterator: Iterator[BasicBlock] = new Iterator[BasicBlock] {
-    private val visited = collection.mutable.Set[BasicBlock]()
-    private var queue = first :: Nil
+    private val visited = Set[BasicBlock]()
+    private val queue = new Queue[BasicBlock]() += first
 
     def hasNext = ! queue.isEmpty
 
     def next = {
-      val res = queue.head
+      val res = queue.dequeue
       visited += res
-      queue = queue.tail
-
       res foreach {
-        case B(cond, ifBB, elseBB) =>
-          if (! (visited contains elseBB) && ! (queue contains elseBB)) {
-            queue = elseBB :: queue
-          }
+        case B(cond, ifBB, elseBB) => {
           if (! (visited contains ifBB) && ! (queue contains ifBB)) {
-            queue = ifBB :: queue
+            queue += ifBB
           }
+          if (! (visited contains elseBB) && ! (queue contains elseBB)) {
+            queue += elseBB
+          }
+        }
         case _ =>
       }
       res
@@ -44,12 +45,11 @@ sealed class Function(funName: String) extends Iterable[BasicBlock] {
    * BasicBlocks first and replacing them with this method.
    */
   def traverseBB(action: BasicBlock => Unit): Unit = {
-    val visited = collection.mutable.Set[BasicBlock]()
-    var queue = first :: Nil
+    val visited = Set[BasicBlock]()
+    val queue = new Queue[BasicBlock]() += first
 
     def loop: Unit = {
-      val currBB = queue.head
-      queue = queue.tail
+      val currBB = queue.dequeue
 
       if (visited contains currBB) {
         return ()
@@ -58,7 +58,7 @@ sealed class Function(funName: String) extends Iterable[BasicBlock] {
       visited += currBB
       action(currBB)
       currBB foreach {
-        case B(cond, ifBB, elseBB) => queue = ifBB :: elseBB :: queue
+        case B(cond, ifBB, elseBB) => queue ++= List(ifBB, elseBB)
         case _ =>
       }
     }
