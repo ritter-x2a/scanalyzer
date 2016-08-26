@@ -7,8 +7,8 @@ trait AbstractVal[A] {
 
   def add(other: A): A
   def sub(other: A): A
-  // def mul(other: A): A
-  // def div(other: A): A
+  def mul(other: A): A
+  def div(other: A): A
 
   def slt(other: A): A
 
@@ -50,9 +50,9 @@ sealed abstract class SignVal extends AbstractVal[SignVal] {
 
   def add(other: SignVal): SignVal = {
     (this, other) match {
+      case (BOT(), _) => BOT()
+      case (_, BOT()) => BOT()
       case (TOP(), _) | (_, TOP()) => TOP()
-      case (BOT(), o) => BOT()
-      case (t, BOT()) => BOT()
       case (NEZ(), NEZ()) => TOP()
       case (t, o) if t == o => t
 
@@ -91,6 +91,71 @@ sealed abstract class SignVal extends AbstractVal[SignVal] {
   }
 
   def sub(other: SignVal): SignVal = this add (other.invert())
+
+  def mul(other: SignVal): SignVal = {
+    (this, other) match {
+      case (BOT(), _) => BOT()
+      case (_, BOT()) => BOT()
+      case (EZ(), _) => EZ()
+      case (_, EZ()) => EZ()
+      case (TOP(), _) | (_, TOP()) => TOP()
+
+      case (NEZ(), NEZ()) => NEZ()
+      case (GEZ(), GEZ()) => GEZ()
+      case (LEZ(), LEZ()) => GEZ()
+      case (GZ(), GZ()) => GZ()
+      case (LZ(), LZ()) => GZ()
+
+      case (GZ(), LZ()) => LZ()
+      case (GZ(), LEZ()) => LEZ()
+      case (GZ(), GEZ()) => GEZ()
+      case (GZ(), NEZ()) => NEZ()
+
+      case (LZ(), LEZ()) => GEZ()
+      case (LZ(), GEZ()) => LEZ()
+      case (LZ(), NEZ()) => NEZ()
+
+      case (LEZ(), GEZ()) => LEZ()
+      case (LEZ(), NEZ()) => TOP()
+
+      case (GEZ(), NEZ()) => TOP()
+
+      case (t, o) => o mul t
+    }
+  }
+
+  def div(other: SignVal): SignVal = {
+    (this, other) match {
+      case (BOT(), _) => BOT()
+      case (_, BOT()) => BOT()
+      case (_, EZ()) => BOT()
+      case (EZ(), _) => EZ()
+      case (TOP(), _) | (_, TOP()) => TOP()
+
+      case (NEZ(), _) | (_, NEZ()) => TOP()
+
+      case (GEZ(), GEZ()) => GEZ()
+      case (LEZ(), LEZ()) => GEZ()
+      case (GZ(), GZ()) => GEZ() // Integer division!
+      case (LZ(), LZ()) => GEZ()
+
+      case (GZ(), LZ()) => LEZ()
+      case (GZ(), LEZ()) => LEZ()
+      case (GZ(), GEZ()) => GEZ()
+
+      case (LZ(), GZ()) => LEZ()
+      case (LZ(), LEZ()) => GEZ()
+      case (LZ(), GEZ()) => LEZ()
+
+      case (LEZ(), GZ()) => LEZ()
+      case (LEZ(), LZ()) => GEZ()
+      case (LEZ(), GEZ()) => LEZ()
+
+      case (GEZ(), GZ()) => GEZ()
+      case (GEZ(), LZ()) => LEZ()
+      case (GEZ(), LEZ()) => LEZ()
+    }
+  }
 
   def slt(other: SignVal): SignVal =
     if ((this sub other) == LZ()) GZ() else EZ()
