@@ -43,7 +43,6 @@ sealed trait Instruction {
           case SUB() => "SUB"
           case MUL() => "MUL"
           case DIV() => "DIV"
-          case MOD() => "MOD"
           case SLT() => "SLT"
           case _ => "[Unsupported BinOp]"
         }
@@ -94,7 +93,6 @@ case class ADD() extends Operator
 case class SUB() extends Operator
 case class MUL() extends Operator
 case class DIV() extends Operator
-case class MOD() extends Operator
 case class SLT() extends Operator
 
 case class PHI(N: String,  var Ops: List[(Value, BasicBlock)]) extends Named(N) {

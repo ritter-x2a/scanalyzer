@@ -139,7 +139,6 @@ object Parser {
             case "SUB" => SUB()
             case "MUL" => MUL()
             case "DIV" => DIV()
-            case "MOD" => MOD()
             case "SLT" => SLT()
             case _ =>
               throw new ParserException("Invalid binary operator: `" + op + "`!")
