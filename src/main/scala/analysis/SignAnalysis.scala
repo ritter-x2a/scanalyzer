@@ -2,6 +2,8 @@ package analysis
 
 import cfg._
 
+import scala.collection.mutable.{Set, Queue, Map}
+
 trait AbstractVal[A] {
   def join(other: A): A
 
@@ -184,6 +186,44 @@ class SignAnalysis(fun: Function) extends ValueAnalysis[SignVal](fun) {
   override def run(): Unit = {
     populateSymbolTable(new BOT())
 
+    /** mapping (instr -> instrs directly depending on it) */
+    val depMap = Map[Named, Set[Named]]()
+
+    // initialize depMap with empty sets
+    fun.traverseInstructions {
+      case i @ Named(_) => depMap += (i -> Set[Named]())
+      case _ =>
+    }
+
+    val addIfNamed: (Named, Value) => Unit = {
+      case (i, x: Named) => depMap(x) += i
+      case _ =>
+    }
+
+    // add instructions that directly depend
+    fun.traverseInstructions {
+      case i @ BinOp(_, _, a, b) => {
+        addIfNamed(i, a)
+        addIfNamed(i, b)
+      }
+      case i @ PHI(_, l) => {
+        l foreach {
+          case (v, bb) => addIfNamed(i, v)
+          case _ =>
+        }
+      }
+      case _ =>
+    }
+
+    val queue = new Queue[Named]
+
+    queue ++= depMap.keys
+
+    while (! queue.isEmpty) {
+      val current = queue.dequeue
+    //   compute new val for current
+    //   if it changed: add dependencies to queue
+    }
   }
 
   override def fromBigInt(x: BigInt): SignVal = {
