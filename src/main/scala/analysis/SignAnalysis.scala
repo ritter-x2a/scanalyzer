@@ -5,12 +5,15 @@ import cfg._
 trait AbstractVal[A] {
   def join(other: A): A
 
-  // def add(other: A): A
-  // def sub(other: A): A
+  def add(other: A): A
+  def sub(other: A): A
   // def mul(other: A): A
   // def div(other: A): A
-  //
-  // def slt(other: A): A
+
+  def slt(other: A): A
+
+  def canBeZero(): Boolean
+  def canBeNonZero(): Boolean
 }
 
 sealed abstract class SignVal extends AbstractVal[SignVal] {
@@ -44,6 +47,57 @@ sealed abstract class SignVal extends AbstractVal[SignVal] {
       case (t, o) => o join t
     }
   }
+
+  def add(other: SignVal): SignVal = {
+    (this, other) match {
+      case (TOP(), _) | (_, TOP()) => TOP()
+      case (BOT(), o) => BOT()
+      case (t, BOT()) => BOT()
+      case (NEZ(), NEZ()) => TOP()
+      case (t, o) if t == o => t
+
+      case (EZ(), GZ()) => GZ()
+      case (EZ(), LZ()) => LZ()
+      case (EZ(), LEZ()) => LEZ()
+      case (EZ(), GEZ()) => GEZ()
+      case (EZ(), NEZ()) => NEZ()
+
+      case (GZ(), LZ()) => TOP()
+      case (GZ(), LEZ()) => TOP()
+      case (GZ(), GEZ()) => GZ()
+      case (GZ(), NEZ()) => TOP()
+
+      case (LZ(), LEZ()) => LZ()
+      case (LZ(), GEZ()) => TOP()
+      case (LZ(), NEZ()) => TOP()
+
+      case (LEZ(), GEZ()) => TOP()
+      case (LEZ(), NEZ()) => TOP()
+
+      case (GEZ(), NEZ()) => TOP()
+
+      case (t, o) => o add t
+    }
+  }
+
+  private def invert(): SignVal = {
+    this match {
+      case LZ() => GZ()
+      case GZ() => LZ()
+      case LEZ() => GEZ()
+      case GEZ() => LEZ()
+      case s => s
+    }
+  }
+
+  def sub(other: SignVal): SignVal = this add (other.invert())
+
+  def slt(other: SignVal): SignVal =
+    if ((this sub other) == LZ()) GZ() else EZ()
+
+  override def canBeZero(): Boolean = (this join NEZ()) == TOP()
+
+  override def canBeNonZero(): Boolean = (this join EZ()) != EZ()
 }
 
 case class BOT() extends SignVal
