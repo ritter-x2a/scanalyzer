@@ -1,5 +1,6 @@
 package analysis
 
+import util._
 import cfg._
 
 import scala.collection.mutable.{Set, Queue, Map}
@@ -159,8 +160,16 @@ sealed abstract class SignVal extends AbstractVal[SignVal] {
     }
   }
 
-  def slt(other: SignVal): SignVal =
-    if ((this sub other) == LZ()) GZ() else EZ()
+  def slt(other: SignVal): SignVal = {
+    val sub = this sub other
+    if (sub == LZ()) {
+      GZ()
+    } else if (sub == GEZ()) {
+      EZ()
+    } else {
+      GEZ()
+    }
+  }
 
   override def canBeZero(): Boolean = (this join NEZ()) == TOP()
 
@@ -235,17 +244,33 @@ class SignAnalysis(fun: Function) extends ValueAnalysis[SignVal](fun) {
       case _ =>
     }
 
+    Util.dbgmsg("Dependencies:")
+    if (Util.dbg) {
+      depMap foreach {
+        case (Named(n), s) => Util.dbgmsg("  " + n + " ->" + Util.strIt(s))
+        case _ =>
+      }
+    }
+
     val queue = new Queue[Named]
 
     queue ++= depMap.keys
 
     while (! queue.isEmpty) {
+      Util.dbgmsg("Queue: " + Util.strIt(queue))
+
       val current = queue.dequeue
       val before = symtab(current.Name)
       eval(current)
       val after = symtab(current.Name)
+
+      Util.dbgmsg("Transform `" + current.Name + "` from `" + before +
+        "` to `" + after)
+
       if (after != before) {
-        queue ++= (depMap(current) filterNot (queue contains _))
+        val add = (depMap(current) filterNot (queue contains _))
+        Util.dbgmsg("  ~> Adding `" + Util.strIt(add) + "` to queue")
+        queue ++= add
       }
     }
   }

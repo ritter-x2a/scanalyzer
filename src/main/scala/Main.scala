@@ -1,5 +1,6 @@
 package main
 
+import util._
 import cfg._
 import analysis._
 
@@ -20,6 +21,7 @@ object Main extends App {
     case "-interpret" => analysis_opt = INTERPRET
     case "-sign" => analysis_opt = SIGN
     case "-print" => do_printing = true
+    case "-v" => Util.dbglvl = 1
     case s => filename = s
   }
 
