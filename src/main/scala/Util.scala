@@ -5,7 +5,7 @@ import cfg._
 object Util {
   var dbglvl = 0
 
-  def dbgmsg(msg: String) = {
+  def dbgmsg(msg: String): Unit = {
     if (dbglvl > 0) {
       println(msg)
     }
