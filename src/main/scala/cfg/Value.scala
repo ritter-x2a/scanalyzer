@@ -35,6 +35,8 @@ case class Undef(n: String) extends Value
 
 /** The possible atomic elements of computation. */
 sealed trait Instruction {
+  val id = InstructionManager.getID()
+
   override def toString() : String = {
     this match {
       case BinOp(n, op, a, b) => {
@@ -69,15 +71,54 @@ sealed trait Instruction {
   }
 }
 
+object InstructionManager {
+  case class IDException(msg:String) extends Exception
+
+  var currentID: Integer = 0
+
+  def getID(): Integer = {
+    currentID += 1
+    if (currentID == 0) {
+      throw new IDException("Instruction IDs overflowed!")
+    }
+    currentID
+  }
+}
+
 case class B(var C: Value, var TSucc: BasicBlock, var FSucc: BasicBlock)
-  extends Instruction
-case class RET(var Op: Value) extends Instruction
+  extends Instruction {
+
+  override def hashCode(): Int = this.id
+
+  override def equals(other: Any): Boolean = {
+    other match {
+      case s: B => this.id == s.id
+      case _ => false
+    }
+  }
+}
+
+case class RET(var Op: Value) extends Instruction {
+
+  override def hashCode(): Int = this.id
+
+  override def equals(other: Any): Boolean = {
+    other match {
+      case s: RET => this.id == s.id
+      case _ => false
+    }
+  }
+}
 
 /**
  * Super-class for all named Instructions, i.e. those yielding an actual value.
  */
 sealed abstract class Named(n: String) extends Instruction with Value {
   val Name: String = n
+
+  override def hashCode(): Int
+
+  override def equals(other: Any): Boolean
 }
 
 object Named extends Instruction with Value {
@@ -86,7 +127,18 @@ object Named extends Instruction with Value {
 }
 
 case class BinOp(N: String, Op: Operator, var OpA: Value, var OpB: Value)
-  extends Named(N)
+  extends Named(N) {
+
+  override def hashCode(): Int = this.id
+
+  override def equals(other: Any): Boolean = {
+    other match {
+      case s: BinOp => this.id == s.id
+      case _ => false
+    }
+  }
+}
+
 
 sealed abstract class Operator
 case class ADD() extends Operator
@@ -98,4 +150,13 @@ case class SLT() extends Operator
 case class PHI(N: String,  var Ops: List[(Value, BasicBlock)]) extends Named(N) {
   def getValForBB(bb: BasicBlock): Option[Value] =
     (Ops find (_._2 == bb)) map (_._1)
+
+  override def hashCode(): Int = this.id
+
+  override def equals(other: Any): Boolean = {
+    other match {
+      case s: PHI => this.id == s.id
+      case _ => false
+    }
+  }
 }

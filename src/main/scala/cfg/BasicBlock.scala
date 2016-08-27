@@ -44,5 +44,16 @@ sealed class BasicBlock(name: String) extends Iterable[Instruction] {
     }
     res
   }
+
+  override def hashCode(): Int = {
+    (Name.hashCode * 191919) ^ Instrs.hashCode
+  }
+
+  override def equals(other: Any): Boolean = {
+    other match {
+      case b: BasicBlock => b.Name == Name && b.Instrs == Instrs
+      case _ => false
+    }
+  }
 }
 
