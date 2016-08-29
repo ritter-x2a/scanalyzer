@@ -23,7 +23,11 @@ class Interpreter(fun: Function) extends ValueAnalysis[Option[BigInt]](fun) {
           case ADD() => aval + bval
           case SUB() => aval - bval
           case MUL() => aval * bval
-          case DIV() => aval / bval
+          case DIV() => if (bval != 0) {
+            aval / bval
+          } else {
+            err("Division by zero!")
+          }
           case SLT() => if (aval < bval) 1 else 0
         })
       }

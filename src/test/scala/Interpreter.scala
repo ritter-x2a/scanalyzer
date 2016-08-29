@@ -75,4 +75,12 @@ class InterpreterSpec extends FlatSpec with Matchers {
     res should include ("""w3 -> Some(0)""")
     res should include ("""w4 -> Some(0)""")
   }
+
+  it should "throw InterpreterException if a division by zero occurs" in {
+    val fun = Parser.parse("examplefiles/neg_divzero.cfg")
+    val interpreter = new Interpreter(fun)
+    a [InterpretationException] should be thrownBy {
+      interpreter.run
+    }
+  }
 }
