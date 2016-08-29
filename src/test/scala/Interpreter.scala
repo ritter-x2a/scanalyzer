@@ -4,11 +4,6 @@ import cfg._
 import analysis._
 
 class InterpreterSpec extends FlatSpec with Matchers {
-  def performParseTest(filename: String) = {
-    val fun = Parser.parse(filename)
-    val reference = scala.io.Source.fromFile(filename).mkString
-  }
-
   "Interpreter" should "compute the result 10" in {
     val fun = new Function("foo")
 
@@ -46,6 +41,14 @@ class InterpreterSpec extends FlatSpec with Matchers {
     res should include ("""phi2 -> Some(42)""")
   }
 
+  it should "handle BigInt constants correctly" in {
+    val fun = Parser.parse("examplefiles/bigint.cfg")
+    val interpreter = new Interpreter(fun)
+    interpreter.run
+    val res = interpreter.getResult
+    res should include ("""x -> Some(1000000000000000000)""")
+    res should include ("""__RES__ -> Some(1000000000000000000)""")
+  }
 
   // it should "throw NoSuchElementException if an empty stack is popped" in {
   //   val emptyStack = new Stack[Int]

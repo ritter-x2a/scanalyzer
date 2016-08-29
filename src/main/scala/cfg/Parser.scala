@@ -88,7 +88,7 @@ object Parser {
   def makeDummyVal(s: String): Value = {
     val pat = ("(" + num_pat + ")").r
     s match {
-      case pat(s) => Const(s.toInt)
+      case pat(s) => Const(BigInt(s))
       case s => Undef(s)
     }
   }

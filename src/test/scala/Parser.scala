@@ -12,6 +12,10 @@ class ParserSpec extends FlatSpec with Matchers {
     performParseTest("examplefiles/ex01.cfg")
   }
 
+  it should "parse BigInt constants correctly" in {
+    performParseTest("examplefiles/bigint.cfg")
+  }
+
   it should "throw ParserException if an undefined name is used" in {
     a [ParserException] should be thrownBy {
       performParseTest("examplefiles/neg01.cfg")
