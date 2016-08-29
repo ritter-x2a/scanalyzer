@@ -41,6 +41,15 @@ class InterpreterSpec extends FlatSpec with Matchers {
     res should include ("""phi2 -> Some(42)""")
   }
 
+  it should "handle multiple PHIs with parallel assignment semantics" in {
+    val fun = Parser.parse("examplefiles/parallel_phi.cfg")
+    val interpreter = new Interpreter(fun)
+    interpreter.run
+    val res = interpreter.getResult
+    res should include ("""y -> Some(1)""")
+    res should include ("""x -> Some(0)""")
+  }
+
   it should "handle BigInt constants correctly" in {
     val fun = Parser.parse("examplefiles/bigint.cfg")
     val interpreter = new Interpreter(fun)
