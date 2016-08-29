@@ -50,10 +50,29 @@ class InterpreterSpec extends FlatSpec with Matchers {
     res should include ("""__RES__ -> Some(1000000000000000000)""")
   }
 
-  // it should "throw NoSuchElementException if an empty stack is popped" in {
-  //   val emptyStack = new Stack[Int]
-  //   a [NoSuchElementException] should be thrownBy {
-  //     emptyStack.pop()
-  //   }
-  // }
+  it should "handle all arithmetic operators correctly" in {
+    val fun = Parser.parse("examplefiles/arithmetic.cfg")
+    val interpreter = new Interpreter(fun)
+    interpreter.run
+    val res = interpreter.getResult
+    res should include ("""x1 -> Some(1)""")
+    res should include ("""x2 -> Some(3)""")
+    res should include ("""x3 -> Some(5)""")
+    res should include ("""x4 -> Some(8)""")
+
+    res should include ("""y1 -> Some(-1)""")
+    res should include ("""y2 -> Some(-3)""")
+    res should include ("""y3 -> Some(5)""")
+    res should include ("""y4 -> Some(-8)""")
+
+    res should include ("""z1 -> Some(-1)""")
+    res should include ("""z2 -> Some(-2)""")
+    res should include ("""z3 -> Some(-4)""")
+    res should include ("""z4 -> Some(8)""")
+
+    res should include ("""w1 -> Some(43)""")
+    res should include ("""w2 -> Some(21)""")
+    res should include ("""w3 -> Some(0)""")
+    res should include ("""w4 -> Some(0)""")
+  }
 }
