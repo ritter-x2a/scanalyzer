@@ -1,6 +1,8 @@
 package analysis
 
-case class AnalysisException(msg:String) extends Exception
+import util._
+
+case class AnalysisException(msg:String) extends ScanalyzerException(msg)
 
 /**
  * General interface for analyses that work on function CFGs.

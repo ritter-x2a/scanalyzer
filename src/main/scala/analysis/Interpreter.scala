@@ -1,8 +1,9 @@
 package analysis
 
 import cfg._
+import util._
 
-case class InterpretationException(msg:String) extends Exception
+case class InterpretationException(msg:String) extends ScanalyzerException(msg)
 
 /**
  * An Interpreter for the SSA-CFG format that implicitly defines its semantics.

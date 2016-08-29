@@ -12,10 +12,9 @@ class ParserSpec extends FlatSpec with Matchers {
     performParseTest("examplefiles/ex01.cfg")
   }
 
-  // it should "throw NoSuchElementException if an empty stack is popped" in {
-  //   val emptyStack = new Stack[Int]
-  //   a [NoSuchElementException] should be thrownBy {
-  //     emptyStack.pop()
-  //   }
-  // }
+  it should "throw ParserException if an undefined name is used" in {
+    a [ParserException] should be thrownBy {
+      performParseTest("examplefiles/neg01.cfg")
+    }
+  }
 }

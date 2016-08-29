@@ -1,8 +1,9 @@
 package cfg
 
 import scala.io.Source
+import util._
 
-case class ParserException(msg:String) extends Exception
+case class ParserException(msg:String) extends ScanalyzerException(msg)
 
 /**
  * States of the "control automaton" (in some way...) of the parser.
@@ -78,6 +79,8 @@ import ParseRegEx._
  * but acceptable as performance is not in the primary focus of the project.
  */
 object Parser {
+  private def err(msg: String) = throw new ParserException(msg)
+
   /**
    * Creates either an integer constant value if the given string is a number or
    * otherwise an Undef Value with the given string as name
@@ -88,6 +91,21 @@ object Parser {
       case pat(s) => Const(s.toInt)
       case s => Undef(s)
     }
+  }
+
+  private def parsePhiTail(tail: String): List[(Value, BasicBlock)] = {
+    val phiarg_pat = ("(" + val_pat + ")\\s*,\\s*(" + name_pat + ")").r
+    var ops: List[(Value, BasicBlock)] = Nil
+    for (s <- tail.split("]").map(_.replaceAll("\\s*,?\\s*\\[", "")).
+        map(_.trim)) {
+      s match {
+        case phiarg_pat(v, b) => {
+          ops = (makeDummyVal(v), new BasicBlock(b)) :: ops
+        }
+        case _ => err("Invalid PHI argument: `" + s + "`!")
+      }
+    }
+    ops.reverse
   }
 
   /**
@@ -115,6 +133,9 @@ object Parser {
       currBB = null
       currInstrs = Nil
     }
+    def symtabLookUp(x: String): Named =
+      symtab getOrElse (x, err("Use of undefined symbol `" + x + "`!"))
+
 
     // Step 1: construct CFG with dummy values
     for (line <- Source.fromFile(filename).getLines()) {
@@ -140,8 +161,7 @@ object Parser {
             case "MUL" => MUL()
             case "DIV" => DIV()
             case "SLT" => SLT()
-            case _ =>
-              throw new ParserException("Invalid binary operator: `" + op + "`!")
+            case _ => err("Invalid binary operator: `" + op + "`!")
           }
           val instr = BinOp(name, operator, makeDummyVal(a), makeDummyVal(b))
           symtab += (name -> instr)
@@ -149,19 +169,7 @@ object Parser {
           state = Instr
         }
         case phi_pat(name, tail) if (state == MayPhi) => {
-          val phiarg_pat = ("(" + val_pat + ")\\s*,\\s*(" + name_pat + ")").r
-          var ops: List[(Value, BasicBlock)] = Nil
-          for (s <- tail.split("]").map(_.replaceAll("\\s*,?\\s*\\[", "")).map(_.trim)) {
-            s match {
-              case phiarg_pat(v, b) => {
-                ops = (makeDummyVal(v), new BasicBlock(b)) :: ops
-              }
-              case _ => {
-                throw new ParserException("Invalid PHI argument: `" + s + "`!")
-              }
-            }
-          }
-          val instr = PHI(name, ops.reverse)
+          val instr = PHI(name, parsePhiTail(tail))
           symtab += (name -> instr)
           currInstrs = instr :: currInstrs
           state = MayPhi
@@ -178,11 +186,11 @@ object Parser {
           state = MayBB
         }
         case empty_pat(x) => ;
-        case x => throw new ParserException("Invalid input line: `" + x + "`!")
+        case x => err("Invalid input line: `" + x + "`!")
       }
     }
     if (state != Done) {
-      throw new ParserException("Unterminated input!")
+      err("Unterminated input!")
     }
 
     // Step 2: fill in non-dummy values
@@ -190,18 +198,18 @@ object Parser {
       i match {
         case s: BinOp => {
           s.OpA match {
-            case Undef(n) => s.OpA = symtab(n)
+            case Undef(n) => s.OpA = symtabLookUp(n)
             case _ => ;
           }
           s.OpB match {
-            case Undef(n) => s.OpB = symtab(n)
+            case Undef(n) => s.OpB = symtabLookUp(n)
             case _ => ;
           }
         }
         case s: PHI => {
           val newOps = s.Ops.map(pair =>
             (pair._1 match {
-              case Undef(n) => symtab(n)
+              case Undef(n) => symtabLookUp(n)
               case _ => pair._1
             }, bbtab(pair._2.Name))
           )
@@ -209,7 +217,7 @@ object Parser {
         }
         case s: B => {
           s.C match {
-            case Undef(n) => s.C = symtab(n)
+            case Undef(n) => s.C = symtabLookUp(n)
             case _ => ;
           }
           s.TSucc = bbtab(s.TSucc.Name)
@@ -217,11 +225,11 @@ object Parser {
         }
         case s: RET => {
           s.Op match {
-            case Undef(n) => s.Op = symtab(n)
+            case Undef(n) => s.Op = symtabLookUp(n)
             case _ => ;
           }
         }
-        case _ => throw new ParserException("Unsupported Instruction!")
+        case _ => err("Unsupported Instruction!")
       }
     })
 

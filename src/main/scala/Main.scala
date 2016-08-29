@@ -27,28 +27,36 @@ object Main extends App {
 
   if (filename == null) {
     System.err.println("Input file required!")
-    System.exit(1)
+    System.exit(2)
   }
 
-  val fun = Parser.parse(filename)
+  try {
+    val fun = Parser.parse(filename)
 
-  if (do_printing) {
-    println(fun.toString)
+    if (do_printing) {
+      println(fun.toString)
+    }
+
+    var analysis: Analysis = null
+
+    analysis_opt match {
+      case INTERPRET => analysis = new Interpreter(fun)
+      case SIGN => analysis = new SignAnalysis(fun)
+      case _ =>
+    }
+
+    if (analysis == null) {
+      System.exit(0)
+    }
+
+    analysis.run
+    println(analysis.getResult)
+  } catch {
+    case ScanalyzerException(msg) => {
+      System.err.println("Error: " + msg)
+      System.exit(1)
+    }
+    case e: Exception => throw e
   }
-
-  var analysis: Analysis = null
-
-  analysis_opt match {
-    case INTERPRET => analysis = new Interpreter(fun)
-    case SIGN => analysis = new SignAnalysis(fun)
-    case _ =>
-  }
-
-  if (analysis == null) {
-    System.exit(0)
-  }
-
-  analysis.run
-  println(analysis.getResult)
 }
 
