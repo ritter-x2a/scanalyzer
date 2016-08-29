@@ -4,11 +4,12 @@ import scanalyzer.util._
 import scanalyzer.cfg._
 import scanalyzer.analysis._
 import scanalyzer.analysis.signs._
+import scanalyzer.analysis.constants._
 
 
 object AnalysisOptions extends Enumeration {
   type AnalysisOptions = Value
-  val NONE, INTERPRET, SIGN = Value
+  val NONE, INTERPRET, SIGN, CONST = Value
 }
 
 import AnalysisOptions._
@@ -21,6 +22,7 @@ object Main extends App {
   args foreach {
     case "-interpret" => analysis_opt = INTERPRET
     case "-sign" => analysis_opt = SIGN
+    case "-const" => analysis_opt = CONST
     case "-print" => do_printing = true
     case "-v" => Util.dbglvl = 1
     case s => filename = s
@@ -43,6 +45,7 @@ object Main extends App {
     analysis_opt match {
       case INTERPRET => analysis = new Interpreter(fun)
       case SIGN => analysis = new SignAnalysis(fun)
+      case CONST => analysis = new ConstantAnalysis(fun)
       case _ =>
     }
 
