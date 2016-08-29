@@ -1,7 +1,7 @@
-package analysis
+package scanalyzer.analysis
 
-import util._
-import cfg._
+import scanalyzer.util._
+import scanalyzer.cfg._
 import scala.collection.mutable.{Set, Queue, Map}
 
 /**

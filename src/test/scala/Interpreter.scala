@@ -1,7 +1,7 @@
 import org.scalatest._
 
-import cfg._
-import analysis._
+import scanalyzer.cfg._
+import scanalyzer.analysis._
 
 class InterpreterSpec extends FlatSpec with Matchers {
   "Interpreter" should "compute the result 10" in {

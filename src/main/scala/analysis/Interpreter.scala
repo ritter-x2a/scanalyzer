@@ -1,7 +1,7 @@
-package analysis
+package scanalyzer.analysis
 
-import cfg._
-import util._
+import scanalyzer.cfg._
+import scanalyzer.util._
 
 case class InterpretationException(msg:String) extends ScanalyzerException(msg)
 

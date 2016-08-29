@@ -1,6 +1,6 @@
-package analysis
+package scanalyzer.analysis
 
-import cfg._
+import scanalyzer.cfg._
 import scala.collection.mutable.Map
 
 /**

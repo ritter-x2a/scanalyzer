@@ -1,6 +1,6 @@
-package util
+package scanalyzer.util
 
-import cfg._
+import scanalyzer.cfg._
 
 /**
  * Superclass for custom Exceptions used in this project.

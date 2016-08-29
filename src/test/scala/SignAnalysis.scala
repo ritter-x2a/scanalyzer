@@ -1,7 +1,7 @@
 import org.scalatest._
 
-import cfg._
-import analysis._
+import scanalyzer.cfg._
+import scanalyzer.analysis.signs._
 
 class SignAnalysisSpec extends FlatSpec with Matchers {
   def performParseTest(filename: String) = {

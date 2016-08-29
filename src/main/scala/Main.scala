@@ -1,8 +1,9 @@
-package main
+package scanalyzer.main
 
-import util._
-import cfg._
-import analysis._
+import scanalyzer.util._
+import scanalyzer.cfg._
+import scanalyzer.analysis._
+import scanalyzer.analysis.signs._
 
 
 object AnalysisOptions extends Enumeration {

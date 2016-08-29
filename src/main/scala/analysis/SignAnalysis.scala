@@ -1,6 +1,7 @@
-package analysis
+package scanalyzer.analysis.signs
 
-import cfg._
+import scanalyzer.analysis._
+import scanalyzer.cfg._
 
 /**
  * AbstractVal implementation for the Sign domain, represents the scalar
@@ -38,7 +39,7 @@ sealed abstract class SignVal extends AbstractVal[SignVal] {
     }
   }
 
-  def add(other: SignVal): SignVal = {
+  override def add(other: SignVal): SignVal = {
     (this, other) match {
       case (BOT(), _) => BOT()
       case (_, BOT()) => BOT()
@@ -80,9 +81,9 @@ sealed abstract class SignVal extends AbstractVal[SignVal] {
     }
   }
 
-  def sub(other: SignVal): SignVal = this add (other.invert())
+  override def sub(other: SignVal): SignVal = this add (other.invert())
 
-  def mul(other: SignVal): SignVal = {
+  override def mul(other: SignVal): SignVal = {
     (this, other) match {
       case (BOT(), _) => BOT()
       case (_, BOT()) => BOT()
@@ -114,7 +115,7 @@ sealed abstract class SignVal extends AbstractVal[SignVal] {
     }
   }
 
-  def div(other: SignVal): SignVal = {
+  override def div(other: SignVal): SignVal = {
     (this, other) match {
       case (BOT(), _) => BOT()
       case (_, BOT()) => BOT()
@@ -147,12 +148,14 @@ sealed abstract class SignVal extends AbstractVal[SignVal] {
     }
   }
 
-  def slt(other: SignVal): SignVal = {
+  override def slt(other: SignVal): SignVal = {
     val sub = this sub other
     if (sub == LZ()) {
       GZ()
     } else if (sub == GEZ()) {
       EZ()
+    } else if (sub == BOT()) {
+      BOT()
     } else {
       GEZ()
     }
@@ -176,7 +179,9 @@ case class TOP() extends SignVal
  * A simple sign analysis that determines the possible signs of all occuring
  * values in the function.
  */
-class SignAnalysis(fun: Function) extends SimpleValueIterationAnalysis[SignVal](fun) {
+class SignAnalysis(fun: Function)
+  extends SimpleValueIterationAnalysis[SignVal](fun) {
+
   override def bot(): SignVal = BOT()
 
   override def fromBigInt(x: BigInt): SignVal = {
