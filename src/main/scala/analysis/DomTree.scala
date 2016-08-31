@@ -41,7 +41,7 @@ class DomTree(fun: Function) {
   private def verifySSARecurse(current: DomTreeNode, defset: Set[Named]) {
     val checkVal: Value => Unit = {
       case i @ Named(n) if ! (defset contains i) =>
-        err("CFG not in SSA form: Undominated use of `$n`!")
+        err("CFG not in SSA form: Undominated use of `" + n + "`!")
       case _ =>
     }
 
@@ -68,7 +68,7 @@ class DomTree(fun: Function) {
         s foreach {
           case i: PHI => i.getValForBB(current.block) match {
             case Some(v) => checkVal(v)
-            case None => err("Insufficient PHI `$i.Name`!")
+            case None => err("Insufficient PHI `" + i.Name + "`!")
           }
           case _ =>
         }

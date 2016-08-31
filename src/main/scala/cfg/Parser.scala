@@ -43,7 +43,7 @@ object ParseRegEx {
   val bb_start_pat = ("\\s*(" + name_pat + ")\\s*:\\s*").r
 
   /** Pattern for an empty line. */
-  val empty_pat = "(\\s*)".r
+  val empty_pat = "(\\s*|#.*)".r
 
   /** Pattern for a binary operator instruction. */
   val binop_pat = (
@@ -131,6 +131,9 @@ object Parser {
     val bbtab = collection.mutable.Map[String, BasicBlock]()
     def closeBB() = {
       currBB.Instrs = currInstrs.reverse
+      if (bbtab contains currBB.Name) {
+        err("Use of non-unique BasicBlock name `" + currBB.Name + "`!")
+      }
       bbtab += (currBB.Name -> currBB)
       currBB = null
       currInstrs = Nil
@@ -166,12 +169,18 @@ object Parser {
             case _ => err("Invalid binary operator: `" + op + "`!")
           }
           val instr = BinOp(name, operator, makeDummyVal(a), makeDummyVal(b))
+          if (symtab contains name) {
+            err("Use of non-unique name `" + name + "`!")
+          }
           symtab += (name -> instr)
           currInstrs = instr :: currInstrs
           state = Instr
         }
         case phi_pat(name, tail) if (state == MayPhi) => {
           val instr = PHI(name, parsePhiTail(tail))
+          if (symtab contains name) {
+            err("Use of non-unique name `" + name + "`!")
+          }
           symtab += (name -> instr)
           currInstrs = instr :: currInstrs
           state = MayPhi

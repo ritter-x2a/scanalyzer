@@ -28,6 +28,12 @@ class ParserSpec extends FlatSpec with Matchers {
     performParseTest("examplefiles/neg_divzero.cfg")
   }
 
+  it should "ignore comments" in {
+    val fun = Parser.parse("examplefiles/comment.cfg")
+    val reference = scala.io.Source.fromFile("examplefiles/ex01.cfg").mkString
+    fun.toString should be (reference)
+  }
+
   it should "throw ParserException if an undefined name is used" in {
     a [ParserException] should be thrownBy {
       performParseTest("examplefiles/neg01.cfg")
