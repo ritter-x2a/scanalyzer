@@ -37,6 +37,16 @@ sealed class BasicBlock(name: String) extends Iterable[Instruction] {
     split(Instrs)
   }
 
+  def getSuccessors(): Set[BasicBlock] = {
+    var res = Set[BasicBlock]()
+    this foreach {
+      case B(_, a, b) => res = (Set[BasicBlock]() + a) + b
+      case RET(_) => res = Set[BasicBlock]()
+      case _ =>
+    }
+    res
+  }
+
   override def toString(): String = {
     var res = name + ":\n"
     for (i <- Instrs) {

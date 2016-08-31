@@ -27,6 +27,10 @@ object Util {
     s.foldLeft("") ({(a: String, i: Named) => a + " " + i.Name})
   }
 
+  def strItBB(s: Iterable[BasicBlock]): String = {
+    s.foldLeft("") ({(a: String, i: BasicBlock) => a + " " + i.Name})
+  }
+
   def dbg(): Boolean = dbglvl > 0
 
 }

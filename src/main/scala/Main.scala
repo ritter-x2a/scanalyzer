@@ -5,11 +5,12 @@ import scanalyzer.cfg._
 import scanalyzer.analysis._
 import scanalyzer.analysis.signs._
 import scanalyzer.analysis.constants._
+import scanalyzer.analysis.dominance._
 
 
 object AnalysisOptions extends Enumeration {
   type AnalysisOptions = Value
-  val NONE, INTERPRET, SIGN, CONST = Value
+  val NONE, INTERPRET, SIGN, CONST, DOMINANCE = Value
 }
 
 import AnalysisOptions._
@@ -23,6 +24,7 @@ object Main extends App {
     case "-interpret" => analysis_opt = INTERPRET
     case "-sign" => analysis_opt = SIGN
     case "-const" => analysis_opt = CONST
+    case "-dom" => analysis_opt = DOMINANCE
     case "-print" => do_printing = true
     case "-v" => Util.dbglvl = 1
     case s => filename = s
@@ -46,6 +48,7 @@ object Main extends App {
       case INTERPRET => analysis = new Interpreter(fun)
       case SIGN => analysis = new SignAnalysis(fun)
       case CONST => analysis = new ConstantAnalysis(fun)
+      case DOMINANCE => analysis = new DominanceAnalysis(fun)
       case _ =>
     }
 
