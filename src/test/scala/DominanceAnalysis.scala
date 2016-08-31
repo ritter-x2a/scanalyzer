@@ -137,4 +137,21 @@ class DominanceSpec extends FlatSpec with Matchers {
         - BB_5""")
   }
 
+  it should "verify SSA form of bigint.cfg" in {
+    val fun = Parser.parse("examplefiles/bigint.cfg")
+    val tree = DomTree.construct(fun)
+    tree.verifySSA()
+  }
+
+  it should "verify SSA form of arithmetic.cfg" in {
+    val fun = Parser.parse("examplefiles/arithmetic.cfg")
+    val tree = DomTree.construct(fun)
+    tree.verifySSA()
+  }
+
+  it should "verify SSA form of neg_divzero.cfg" in {
+    val fun = Parser.parse("examplefiles/neg_divzero.cfg")
+    val tree = DomTree.construct(fun)
+    tree.verifySSA()
+  }
 }
