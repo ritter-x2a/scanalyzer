@@ -5,9 +5,14 @@ import scanalyzer.cfg._
 import scanalyzer.util._
 import scala.collection.mutable.{Set, Map, Queue}
 
+/**
+ * Analysis that computes for each BasicBlock bb the set of BasicBlocks that
+ * dominate bb.
+ *
+ * Non-strict dominance is computet, i.e. each BasicBlock dominates itself.
+ */
 class DominanceAnalysis(fun: Function)
   extends BlockAnalysis[Set[BasicBlock]](fun) {
-
 
   override def run(): Unit = {
     val allBlocks = Set[BasicBlock]()
@@ -36,6 +41,9 @@ class DominanceAnalysis(fun: Function)
     }
   }
 
+  /**
+   * Returns a copy of the resulting mapping.
+   */
   def getMapping(): Map[BasicBlock, Set[BasicBlock]] = {
     blocktab.clone
   }

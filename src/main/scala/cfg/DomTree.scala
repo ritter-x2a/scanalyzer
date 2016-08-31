@@ -4,6 +4,11 @@ import scanalyzer.cfg._
 import scanalyzer.analysis.dominance._
 import scala.collection.mutable.{Set, Map}
 
+/**
+ * Representation of a node in the dominance tree.
+ *
+ * Every node wraps a BasicBlock.
+ */
 class DomTreeNode(bb: BasicBlock) {
   var children: List[DomTreeNode] = Nil
 
@@ -19,16 +24,37 @@ class DomTreeNode(bb: BasicBlock) {
   }
 }
 
+/**
+ * The representation of a dominance tree.
+ *
+ * BasicBlocks are ordered by dominance.
+ */
 class DomTree(fun: Function) {
   def first: DomTreeNode = bbmap(fun.first)
   val bbmap = Map[BasicBlock, DomTreeNode]()
+
+  /**
+   * Returns `true` iff every use of a value is dominated by its definition.
+   */
+  def verifySSA(): Boolean = {
+    // TODO
+    true
+  }
 
   override def toString(): String = {
     first.toString()
   }
 }
 
+/**
+ * Companion object for constructor functions.
+ */
 object DomTree {
+
+  /**
+   *  Construct a DomTree from a map that maps Dominators to BasicBlocks.
+   *  Such a map can be obtained from the DominanceAnalysis.
+   */
   def constructFromMapping(
     fun: Function,
     domMap: Map[BasicBlock, Set[BasicBlock]]
@@ -51,6 +77,9 @@ object DomTree {
     res
   }
 
+  /**
+   * Construct the DomTree for a function. Uses DominanceAnalysis.
+   */
   def construct(fun: Function): DomTree = {
     val analysis = new DominanceAnalysis(fun)
     analysis.run()
