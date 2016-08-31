@@ -6,6 +6,7 @@ import scanalyzer.analysis._
 import scanalyzer.analysis.signs._
 import scanalyzer.analysis.constants._
 import scanalyzer.analysis.dominance._
+import scanalyzer.cfg.dominance._
 
 
 object AnalysisOptions extends Enumeration {
@@ -48,7 +49,13 @@ object Main extends App {
       case INTERPRET => analysis = new Interpreter(fun)
       case SIGN => analysis = new SignAnalysis(fun)
       case CONST => analysis = new ConstantAnalysis(fun)
-      case DOMINANCE => analysis = new DominanceAnalysis(fun)
+      case DOMINANCE => {
+        val analysis = new DominanceAnalysis(fun)
+        analysis.run
+        val tree = DomTree.constructFromMapping(fun, analysis.getMapping())
+        println(tree.toString())
+        System.exit(0)
+      }
       case _ =>
     }
 
