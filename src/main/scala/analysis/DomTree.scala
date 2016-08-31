@@ -12,6 +12,7 @@ import scala.collection.mutable.{Set, Map}
  * Every node wraps a BasicBlock.
  */
 class DomTreeNode(bb: BasicBlock) {
+  val block = bb
   var children: List[DomTreeNode] = Nil
 
   private def stringify(prefix: String): String = {
@@ -35,12 +36,53 @@ class DomTree(fun: Function) {
   def first: DomTreeNode = bbmap(fun.first)
   val bbmap = Map[BasicBlock, DomTreeNode]()
 
+  private def err(msg: String) = throw new AnalysisException(msg)
+
+  private def verifySSARecurse(current: DomTreeNode, defset: Set[Named]) {
+    val checkVal: Value => Unit = {
+      case i @ Named(n) if ! (defset contains i) =>
+        err("CFG not in SSA form: Undominated use of `$n`!")
+      case _ =>
+    }
+
+    var succs = scala.collection.immutable.Set[BasicBlock]()
+    for (instr <- current.block) {
+      instr match {
+        case i @ BinOp(_, _, a, b) => {
+          checkVal(a)
+          checkVal(b)
+          defset += i
+        }
+        case i: PHI => defset += i
+        case B(c, a, b) => {
+          checkVal(c)
+          succs = succs + a + b
+        }
+        case RET(x) => {
+          checkVal(x)
+        }
+        case _ =>
+      }
+
+      for (s <- succs) {
+        s foreach {
+          case i: PHI => i.getValForBB(current.block) match {
+            case Some(v) => checkVal(v)
+            case None => err("Insufficient PHI `$i.Name`!")
+          }
+          case _ =>
+        }
+      }
+    }
+    current.children foreach (node => verifySSARecurse(node, defset.clone))
+  }
+
   /**
-   * Returns `true` iff every use of a value is dominated by its definition.
+   * Raises an exception if not every use of a value is dominated by its
+   * definition.
    */
-  def verifySSA(): Boolean = {
-    // TODO
-    true
+  def verifySSA() = {
+    verifySSARecurse(this.first, Set())
   }
 
   override def toString(): String = {

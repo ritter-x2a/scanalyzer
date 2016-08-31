@@ -20,6 +20,7 @@ import AnalysisOptions._
 object Main extends App {
   var filename: String = null
   var do_printing = false
+  var do_domtree = false
   var analysis_opt = NONE
 
   args foreach {
@@ -27,6 +28,7 @@ object Main extends App {
     case "-sign" => analysis_opt = SIGN
     case "-const" => analysis_opt = CONST
     case "-dom" => analysis_opt = DOMINANCE
+    case "-domtree" => do_domtree = true
     case "-print" => do_printing = true
     case "-v" => Util.dbglvl = 1
     case s => filename = s
@@ -44,17 +46,21 @@ object Main extends App {
       println(fun.toString)
     }
 
+    val tree = DomTree.construct(fun)
+
+    if (do_domtree) {
+      println(tree.toString())
+    }
+
+    tree.verifySSA()
+
     var analysis: Analysis = null
 
     analysis_opt match {
       case INTERPRET => analysis = new Interpreter(fun)
       case SIGN => analysis = new SignAnalysis(fun)
       case CONST => analysis = new ConstantAnalysis(fun)
-      case DOMINANCE => {
-        val tree = DomTree.construct(fun)
-        println(tree.toString())
-        System.exit(0)
-      }
+      case DOMINANCE => analysis = new DominanceAnalysis(fun)
       case _ =>
     }
 
