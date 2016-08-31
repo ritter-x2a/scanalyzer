@@ -28,12 +28,16 @@ class DominanceAnalysis(fun: Function)
       succs foreach (bb => {
         val entry = blocktab(bb)
         val sizeBefore = entry.size
-        entry retain (b =>  b == current || (value contains b))
+        entry retain (b =>  b == bb || (value contains b))
         if (sizeBefore != entry.size && ! (queue contains bb)) {
           queue += bb
         }
       })
     }
+  }
+
+  def getMapping(): Map[BasicBlock, Set[BasicBlock]] = {
+    blocktab.clone
   }
 
   override def getResult(): String = {
