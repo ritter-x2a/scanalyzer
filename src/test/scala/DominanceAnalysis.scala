@@ -154,4 +154,13 @@ class DominanceSpec extends FlatSpec with Matchers {
     val tree = DomTree.construct(fun)
     tree.verifySSA()
   }
+
+  it should "throw AnalysisException if a use is not dominated by its" +
+    " definition" in {
+    a [AnalysisException] should be thrownBy {
+    val fun = Parser.parse("examplefiles/neg04.cfg")
+    val tree = DomTree.construct(fun)
+    tree.verifySSA()
+    }
+  }
 }
