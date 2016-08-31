@@ -1,7 +1,10 @@
-import org.scalatest._
+package scanalyzer
+package testing
 
-import scanalyzer.cfg._
-import scanalyzer.analysis.constants._
+import analysis.constants._
+import cfg._
+
+import org.scalatest._
 
 class ConstAnalysisSpec extends FlatSpec with Matchers {
   "ConstantAnalysis" should "compute precise results for arithmetic.cfg" in {

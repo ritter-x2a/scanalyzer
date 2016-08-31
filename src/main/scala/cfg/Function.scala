@@ -1,4 +1,5 @@
-package scanalyzer.cfg
+package scanalyzer
+package cfg
 
 import scala.collection.mutable.{Set, Queue}
 

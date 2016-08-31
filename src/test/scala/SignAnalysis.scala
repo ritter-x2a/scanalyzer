@@ -1,7 +1,10 @@
-import org.scalatest._
+package scanalyzer
+package testing
 
-import scanalyzer.cfg._
-import scanalyzer.analysis.signs._
+import analysis.signs._
+import cfg._
+
+import org.scalatest._
 
 class SignAnalysisSpec extends FlatSpec with Matchers {
   "SignAnalysis" should "compute a sound result for ex01.cfg" in {

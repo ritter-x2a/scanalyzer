@@ -1,4 +1,8 @@
-import scanalyzer.cfg._
+package scanalyzer
+package testing
+
+import cfg._
+
 import org.scalatest._
 
 class ParserSpec extends FlatSpec with Matchers {

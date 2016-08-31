@@ -1,7 +1,9 @@
-package scanalyzer.cfg
+package scanalyzer
+package cfg
+
+import util._
 
 import scala.io.Source
-import scanalyzer.util._
 
 case class ParserException(msg:String) extends ScanalyzerException(msg)
 

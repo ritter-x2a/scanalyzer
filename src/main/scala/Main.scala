@@ -1,12 +1,13 @@
-package scanalyzer.main
+package scanalyzer
+package main
 
-import scanalyzer.util._
-import scanalyzer.cfg._
-import scanalyzer.analysis._
-import scanalyzer.analysis.signs._
-import scanalyzer.analysis.constants._
-import scanalyzer.analysis.dominance._
-import scanalyzer.cfg.dominance._
+import analysis._
+import analysis.constants._
+import analysis.dominance._
+import analysis.interpreter._
+import analysis.signs._
+import cfg._
+import util._
 
 
 object AnalysisOptions extends Enumeration {

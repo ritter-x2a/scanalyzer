@@ -1,7 +1,8 @@
-package scanalyzer.analysis.signs
+package scanalyzer
+package analysis
+package signs
 
-import scanalyzer.analysis._
-import scanalyzer.cfg._
+import cfg._
 
 /**
  * AbstractVal implementation for the Sign domain, represents the scalar

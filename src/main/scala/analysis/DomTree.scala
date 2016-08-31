@@ -1,7 +1,9 @@
-package scanalyzer.cfg.dominance
+package scanalyzer
+package analysis
+package dominance
 
-import scanalyzer.cfg._
-import scanalyzer.analysis.dominance._
+import cfg._
+
 import scala.collection.mutable.{Set, Map}
 
 /**

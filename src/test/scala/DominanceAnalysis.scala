@@ -1,9 +1,11 @@
-import org.scalatest._
+package scanalyzer
+package testing
 
-import scanalyzer.cfg._
-import scanalyzer.analysis._
-import scanalyzer.analysis.dominance._
-import scanalyzer.cfg.dominance._
+import analysis._
+import analysis.dominance._
+import cfg._
+
+import org.scalatest._
 
 class DominanceSpec extends FlatSpec with Matchers {
 

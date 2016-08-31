@@ -1,6 +1,7 @@
-package scanalyzer.analysis
+package scanalyzer
+package analysis
 
-import scanalyzer.util._
+import util._
 
 case class AnalysisException(msg:String) extends ScanalyzerException(msg)
 

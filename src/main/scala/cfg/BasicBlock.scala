@@ -1,4 +1,5 @@
-package scanalyzer.cfg
+package scanalyzer
+package cfg
 
 /**
  * A structure containing a straight-line sequence of instructions.

@@ -1,4 +1,5 @@
-package scanalyzer.cfg
+package scanalyzer
+package cfg
 
 /*
  * Inheritance structure:
