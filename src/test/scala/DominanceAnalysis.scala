@@ -3,6 +3,7 @@ import org.scalatest._
 import scanalyzer.cfg._
 import scanalyzer.analysis._
 import scanalyzer.analysis.dominance._
+import scanalyzer.cfg.dominance._
 
 class DominanceSpec extends FlatSpec with Matchers {
 
@@ -108,4 +109,30 @@ class DominanceSpec extends FlatSpec with Matchers {
       }
     })
   }
+
+  it should "compute a nice dominance tree for ex01" in {
+    val fun = Parser.parse("examplefiles/ex01.cfg")
+    val tree = DomTree.construct(fun)
+
+    tree.toString() should include ("""- start
+  - BB_A
+    - BB_C
+    - BB_B""")
+  }
+
+  it should "compute a nice dominance tree for dom_complex" in {
+    val fun = Parser.parse("examplefiles/dom_complex.cfg")
+    val tree = DomTree.construct(fun)
+
+    tree.toString() should include ("""- BB_1
+  - BB_2
+    - BB_6
+      - BB_7
+    - BB_8
+      - BB_9
+    - BB_3
+      - BB_4
+        - BB_5""")
+  }
+
 }

@@ -48,9 +48,13 @@ object DomTree {
         parent.children = res.bbmap(bb) :: parent.children
       }
     })
-
     res
   }
 
+  def construct(fun: Function): DomTree = {
+    val analysis = new DominanceAnalysis(fun)
+    analysis.run()
+    constructFromMapping(fun, analysis.getMapping())
+  }
 }
 

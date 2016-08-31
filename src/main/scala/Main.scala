@@ -50,9 +50,7 @@ object Main extends App {
       case SIGN => analysis = new SignAnalysis(fun)
       case CONST => analysis = new ConstantAnalysis(fun)
       case DOMINANCE => {
-        val analysis = new DominanceAnalysis(fun)
-        analysis.run
-        val tree = DomTree.constructFromMapping(fun, analysis.getMapping())
+        val tree = DomTree.construct(fun)
         println(tree.toString())
         System.exit(0)
       }
