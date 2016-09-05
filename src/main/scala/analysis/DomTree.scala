@@ -81,7 +81,7 @@ class DomTree(fun: Function) {
    * Raises an exception if not every use of a value is dominated by its
    * definition.
    */
-  def verifySSA() = {
+  def verifySSA(): Unit = {
     verifySSARecurse(this.first, Set())
   }
 
