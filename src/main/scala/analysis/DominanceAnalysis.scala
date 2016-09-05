@@ -14,13 +14,13 @@ import scala.collection.mutable.{Set, Map, Queue}
  * Non-strict dominance is computet, i.e. each BasicBlock dominates itself.
  */
 class DominanceAnalysis(fun: Function)
-  extends BlockAnalysis[Set[BasicBlock]](fun) {
+  extends BlockAnalysis[Set[BasicBlock]] {
 
   override def run(): Unit = {
     val allBlocks = Set[BasicBlock]()
     fun foreach ( bb => allBlocks += bb )
 
-    populateBlockTable(allBlocks.clone)
+    populateBlockTable(fun, allBlocks.clone)
     blocktab(fun.first) = Set[BasicBlock](fun.first)
 
     val queue = new Queue[BasicBlock]

@@ -38,9 +38,11 @@ sealed class BasicBlock(name: String) extends Iterable[Instruction] {
     split(Instrs)
   }
 
+  def getTerminator(): Instruction = Instrs.last
+
   def getSuccessors(): Set[BasicBlock] = {
     var res = Set[BasicBlock]()
-    this foreach {
+    this.getTerminator() match {
       case B(_, a, b) => res = (Set[BasicBlock]() + a) + b
       case RET(_) => res = Set[BasicBlock]()
       case _ =>

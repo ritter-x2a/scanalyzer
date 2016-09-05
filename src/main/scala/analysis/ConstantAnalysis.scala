@@ -72,3 +72,11 @@ class ConstantAnalysis(fun: Function)
 
   override def fromBigInt(x: BigInt): ConstVal = VAL(x)
 }
+
+class SCCPAnalysis(fun: Function)
+  extends ConditionalValueAnalysis[ConstVal](fun) {
+  override def bot(): ConstVal = BOT()
+
+  override def fromBigInt(x: BigInt): ConstVal = VAL(x)
+}
+

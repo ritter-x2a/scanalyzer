@@ -38,6 +38,8 @@ case class Undef(n: String) extends Value
 sealed trait Instruction {
   val id = InstructionManager.getID()
 
+  var parent: BasicBlock = null
+
   override def toString() : String = {
     this match {
       case BinOp(n, op, a, b) => {

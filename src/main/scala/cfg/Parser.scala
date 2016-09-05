@@ -172,12 +172,14 @@ object Parser {
           if (symtab contains name) {
             err("Use of non-unique name `" + name + "`!")
           }
+          instr.parent = currBB
           symtab += (name -> instr)
           currInstrs = instr :: currInstrs
           state = Instr
         }
         case phi_pat(name, tail) if (state == MayPhi) => {
           val instr = PHI(name, parsePhiTail(tail))
+          instr.parent = currBB
           if (symtab contains name) {
             err("Use of non-unique name `" + name + "`!")
           }
@@ -186,12 +188,15 @@ object Parser {
           state = MayPhi
         }
         case ret_pat(v) if (state == Instr || state == MayPhi) => {
-          currInstrs = RET(makeDummyVal(v)) :: currInstrs
+          val instr = RET(makeDummyVal(v))
+          instr.parent = currBB
+          currInstrs = instr :: currInstrs
           closeBB()
           state = MayBB
         }
         case b_pat(c,t,f) if (state == Instr || state == MayPhi) => {
           val instr = B(makeDummyVal(c), new BasicBlock(t), new BasicBlock(f))
+          instr.parent = currBB
           currInstrs = instr :: currInstrs
           closeBB()
           state = MayBB
