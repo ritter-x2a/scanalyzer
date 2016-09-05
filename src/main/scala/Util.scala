@@ -24,8 +24,12 @@ object Util {
     }
   }
 
-  def strIt(s: Iterable[Named]): String = {
-    s.foldLeft("") ({(a: String, i: Named) => a + " " + i.Name})
+  def strIt(s: Iterable[Instruction]): String = {
+    s.foldLeft("") ({
+      case (a: String, i: Named) => a + " " + i.Name
+      case (a: String, i: B) => a + " [some branch]"
+      case (a: String, _) => a
+    })
   }
 
   def strItBB(s: Iterable[BasicBlock]): String = {

@@ -113,26 +113,27 @@ abstract class ConditionalValueAnalysis[A <: AbstractVal[A]](
 
     setUpDependencyMap(depMap)
 
-    // Util.dbgmsg("Dependencies:")
-    // if (Util.dbg) {
-    //   depMap foreach {
-    //     case (Named(n), s) =>
-    //       Util.dbgmsg("  " + n + " ->" + Util.strIt(s))
-    //     case _ =>
-    //   }
-    // }
+    Util.dbgmsg("Dependencies:")
+    if (Util.dbg) {
+      depMap foreach {
+        case (Named(n), s) =>
+          Util.dbgmsg("  " + n + " ->" + Util.strIt(s))
+        case _ =>
+      }
+    }
 
     val queue = new Queue[QueueItem]
 
     def addInstrsToQueue(xs: Iterable[Instruction]) = {
-      val add = (xs filterNot (queue contains _)) map (INSTR(_))
-      // Util.dbgmsg("  ~> Adding `" + Util.strIt(add) + "` to queue")
+      val addInstrs = (xs filterNot (queue contains _))
+      Util.dbgmsg("  ~> Adding instructions `" + Util.strIt(addInstrs) + "` to queue")
+      val add = addInstrs map (INSTR(_))
       queue ++= add
     }
 
     def addBBToQueue(bb: BasicBlock) = {
       if (!(queue contains BB(bb))) {
-      // Util.dbgmsg("  ~> Adding `" + Util.strIt(add) + "` to queue")
+        Util.dbgmsg("  ~> Adding BasicBlock `" + bb.Name + "` to queue")
         queue += BB(bb)
       }
     }
@@ -159,7 +160,15 @@ abstract class ConditionalValueAnalysis[A <: AbstractVal[A]](
     queue ++= (terminators map (INSTR(_)))
 
     while (! queue.isEmpty) {
-      // Util.dbgmsg("Queue: " + Util.strIt(queue))
+      if (Util.dbg) {
+        val s = queue.foldLeft("") ({
+          case (a: String, INSTR(i: Named)) => a + " " + i.Name
+          case (a: String, INSTR(_: B)) => a + " [some branch]"
+          case (a: String, BB(b)) => a + " " + b.Name
+          case (a: String, _) => a
+        })
+        Util.dbgmsg("Queue: " + s)
+      }
 
       queue.dequeue match {
         case INSTR(instr: Named) => {
@@ -171,15 +180,7 @@ abstract class ConditionalValueAnalysis[A <: AbstractVal[A]](
             "` to `" + after + "`")
 
           if (after != before) {
-            try {
-              addInstrsToQueue(depMap(instr))
-            } catch {
-              case e: Exception => {
-                println(depMap)
-                println(instr.id)
-                throw e
-              }
-            }
+            addInstrsToQueue(depMap(instr))
           }
         }
         case INSTR(instr @ B(c, a, b)) if blocktab(instr.parent) == TOP() => {
