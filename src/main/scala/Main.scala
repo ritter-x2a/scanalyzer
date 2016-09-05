@@ -31,7 +31,24 @@ object Main extends App {
     case "-dom" => analysis_opt = DOMINANCE
     case "-domtree" => do_domtree = true
     case "-print" => do_printing = true
-    case "-v" => Util.dbglvl = 1
+    case "-v" | "-verbose" => Util.dbglvl = 1
+    case "-h" | "-help" => {
+      println("scanalyzer - a simple abstract interpreter")
+      println("Usage:")
+      println("  scanalyzer [flags] <cfg file>")
+      println("Supported analysis flags (use at most one):")
+      println("  -interpret - interpret the cfg file")
+      println("  -sign      - compute the possible signs of each variable")
+      println("  -const     - check for constant values")
+      println("  -sccp      - check for constant values and unreachable blocks")
+      println("  -dom       - compute dominance information for the cfg")
+      println("Supported additional flags:")
+      println("  -print     - pretty print the input cfg")
+      println("  -domtree   - print the dominance tree of the input cfg")
+      println("  -verbose   - print additional verbose output")
+      println("  -help      - display this help")
+      System.exit(0)
+    }
     case s => filename = s
   }
 
