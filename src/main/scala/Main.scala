@@ -12,7 +12,7 @@ import util._
 
 object AnalysisOptions extends Enumeration {
   type AnalysisOptions = Value
-  val NONE, INTERPRET, SIGN, CONST, DOMINANCE = Value
+  val NONE, INTERPRET, SIGN, CONST, SCCP, DOMINANCE = Value
 }
 
 import AnalysisOptions._
@@ -27,6 +27,7 @@ object Main extends App {
     case "-interpret" => analysis_opt = INTERPRET
     case "-sign" => analysis_opt = SIGN
     case "-const" => analysis_opt = CONST
+    case "-sccp" => analysis_opt = SCCP
     case "-dom" => analysis_opt = DOMINANCE
     case "-domtree" => do_domtree = true
     case "-print" => do_printing = true
@@ -60,6 +61,7 @@ object Main extends App {
       case INTERPRET => analysis = new Interpreter(fun)
       case SIGN => analysis = new SignAnalysis(fun)
       case CONST => analysis = new ConstantAnalysis(fun)
+      case SCCP => analysis = new SCCPAnalysis(fun)
       case DOMINANCE => analysis = new DominanceAnalysis(fun)
       case _ =>
     }

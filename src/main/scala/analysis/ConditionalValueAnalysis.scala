@@ -153,7 +153,10 @@ abstract class ConditionalValueAnalysis[A <: AbstractVal[A]](
       }
     }
 
+    val terminators = fun map (_.getTerminator())
+
     queue ++= (depMap.keys map (INSTR(_)))
+    queue ++= (terminators map (INSTR(_)))
 
     while (! queue.isEmpty) {
       // Util.dbgmsg("Queue: " + Util.strIt(queue))
@@ -165,27 +168,53 @@ abstract class ConditionalValueAnalysis[A <: AbstractVal[A]](
           val after = symtab(instr.Name)
 
           Util.dbgmsg("Transform `" + instr.Name + "` from `" + before +
-            "` to `" + after)
+            "` to `" + after + "`")
 
           if (after != before) {
-            addInstrsToQueue(depMap(instr))
+            try {
+              addInstrsToQueue(depMap(instr))
+            } catch {
+              case e: Exception => {
+                println(depMap)
+                println(instr.id)
+                throw e
+              }
+            }
           }
         }
         case INSTR(instr @ B(c, a, b)) if blocktab(instr.parent) == TOP() => {
-          if (canBeNonZero(c)) {
+          if (canBeNonZero(c) && !(blocktab(a) == TOP())) {
             addBBToQueue(a)
           }
-          if (canBeZero(c)) {
+          if (canBeZero(c) && !(blocktab(b) == TOP())) {
             addBBToQueue(b)
           }
         }
         case BB(bb) => {
           blocktab(bb) = TOP()
-          addInstrsToQueue(List(bb.getTerminator()))
+          Util.dbgmsg("Transform `" + bb.Name + "` to `TOP`")
+          val terminator = bb.getTerminator()
+          addInstrsToQueue(List(terminator))
+          terminator match {
+            case B(_, a, b) => {
+              addInstrsToQueue(a.splitPhis()._1)
+              addInstrsToQueue(b.splitPhis()._1)
+            }
+            case _ =>
+          }
         }
         case _ =>
       }
     }
+  }
+
+  override def getResult(): String = {
+    var res = ""
+    for ((k, v) <- symtab)
+      res += k + " -> " + v + "\n"
+    for ((k, v) <- blocktab)
+      res += k.Name + " -> " + v + "\n"
+    res
   }
 }
 

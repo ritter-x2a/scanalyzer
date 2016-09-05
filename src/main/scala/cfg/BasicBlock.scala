@@ -27,9 +27,9 @@ sealed class BasicBlock(name: String) extends Iterable[Instruction] {
 
     def split(l: List[Instruction]) : (List[PHI], List[Instruction]) = {
       l match {
-        case PHI(a, xs) :: ls => {
+        case (i @ PHI(a, xs)) :: ls => {
           val (ys, zs) = split(ls)
-          (PHI(a, xs) :: ys, zs)
+          (i :: ys, zs)
         }
         case _ => (Nil, l)
       }
