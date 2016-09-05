@@ -5,8 +5,7 @@ package constants
 import cfg._
 
 /**
- * AbstractVal implementation for the Sign domain, represents the scalar
- * relation of a value with zero.
+ * AbstractVal implementation for the Constants domain.
  */
 sealed abstract class ConstVal extends AbstractVal[ConstVal] {
   override def join(other: ConstVal): ConstVal = {
@@ -63,8 +62,8 @@ case class VAL(x: BigInt) extends ConstVal
 case class TOP() extends ConstVal
 
 /**
- * A simple sign analysis that determines the possible signs of all occuring
- * values in the function.
+ * A simple constant analysis that determines the possible constant values of
+ * all occuring values in the function.
  */
 class ConstantAnalysis(fun: Function)
   extends SimpleValueIterationAnalysis[ConstVal](fun) {
@@ -73,6 +72,10 @@ class ConstantAnalysis(fun: Function)
   override def fromBigInt(x: BigInt): ConstVal = VAL(x)
 }
 
+/**
+ * An implementation of the analysis necessary for Sparse Conditional Constant
+ * Propagation (SCCP)
+ */
 class SCCPAnalysis(fun: Function)
   extends ConditionalValueAnalysis[ConstVal](fun) {
   override def bot(): ConstVal = BOT()
